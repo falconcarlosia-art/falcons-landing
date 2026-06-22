@@ -447,6 +447,135 @@ function ValueProposition() {
 
 // ─── Product Showroom ─────────────────────────────────────────────────────────
 
+// ─── Lightbox ─────────────────────────────────────────────────────────────────
+
+function Lightbox({ images, startIdx, onClose }) {
+  const [idx, setIdx] = useState(startIdx);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowRight") setIdx((i) => (i + 1) % images.length);
+      if (e.key === "ArrowLeft") setIdx((i) => (i - 1 + images.length) % images.length);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [images.length, onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-sm flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      {/* Close */}
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-white transition-colors"
+      >
+        <X size={18} />
+      </button>
+
+      {/* Image */}
+      <img
+        src={images[idx]}
+        alt={`foto ${idx + 1}`}
+        onClick={(e) => e.stopPropagation()}
+        className="max-h-[85vh] max-w-full rounded-xl object-contain shadow-2xl"
+      />
+
+      {/* Prev / Next */}
+      {images.length > 1 && (
+        <>
+          <button
+            onClick={(e) => { e.stopPropagation(); setIdx((i) => (i - 1 + images.length) % images.length); }}
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-white transition-colors"
+          >
+            <ChevronRight size={20} className="rotate-180" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); setIdx((i) => (i + 1) % images.length); }}
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-white transition-colors"
+          >
+            <ChevronRight size={20} />
+          </button>
+
+          {/* Dots */}
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
+            {images.map((_, i) => (
+              <button
+                key={i}
+                onClick={(e) => { e.stopPropagation(); setIdx(i); }}
+                className={`h-1.5 rounded-full transition-all duration-200 ${i === idx ? "bg-white w-5" : "bg-white/30 w-1.5"}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ─── Product Image Carousel ───────────────────────────────────────────────────
+
+function ProductCarousel({ images, icon: IconComponent, iconBg }) {
+  const [idx, setIdx] = useState(0);
+  const [lightbox, setLightbox] = useState(false);
+  const hasImages = images && images.length > 0;
+
+  const prev = (e) => { e.stopPropagation(); setIdx((i) => (i - 1 + images.length) % images.length); };
+  const next = (e) => { e.stopPropagation(); setIdx((i) => (i + 1) % images.length); };
+
+  if (!hasImages) {
+    return (
+      <div className="relative w-full h-44 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
+        <div
+          className="absolute inset-0 opacity-[0.035]"
+          style={{
+            backgroundImage: "radial-gradient(circle at 1px 1px, #94a3b8 1px, transparent 0)",
+            backgroundSize: "18px 18px",
+          }}
+        />
+        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${iconBg}`}>
+          <IconComponent size={28} />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="relative h-44 overflow-hidden bg-slate-800 select-none">
+        <img
+          src={images[idx]}
+          alt={`foto ${idx + 1}`}
+          onClick={() => setLightbox(true)}
+          className="w-full h-full object-cover transition-opacity duration-300 cursor-zoom-in"
+        />
+
+        {images.length > 1 && (
+          <>
+            <button onClick={prev} className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-slate-950/70 hover:bg-slate-950/90 flex items-center justify-center text-white transition-all">
+              <ChevronRight size={14} className="rotate-180" />
+            </button>
+            <button onClick={next} className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-slate-950/70 hover:bg-slate-950/90 flex items-center justify-center text-white transition-all">
+              <ChevronRight size={14} />
+            </button>
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+              {images.map((_, i) => (
+                <button key={i} onClick={(e) => { e.stopPropagation(); setIdx(i); }}
+                  className={`h-1.5 rounded-full transition-all duration-200 ${i === idx ? "bg-white w-3" : "bg-white/40 w-1.5"}`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      {lightbox && <Lightbox images={images} startIdx={idx} onClose={() => setLightbox(false)} />}
+    </>
+  );
+}
+
 // Íconos disponibles para usar en products.json (campo "icon")
 const ICON_MAP = {
   ToggleLeft,
@@ -530,32 +659,19 @@ function ProductShowroom() {
               key={product.title}
               className="group bg-slate-900 border border-slate-800 hover:border-slate-600 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-950/80 flex flex-col"
             >
-              {/* Image area */}
-              <div className="relative h-44 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center overflow-hidden">
-                <div
-                  className="absolute inset-0 opacity-[0.035]"
-                  style={{
-                    backgroundImage:
-                      "radial-gradient(circle at 1px 1px, #94a3b8 1px, transparent 0)",
-                    backgroundSize: "18px 18px",
-                  }}
+              {/* Carousel */}
+              <div className="relative">
+                <ProductCarousel
+                  images={product.images}
+                  icon={IconComponent}
+                  iconBg={ICON_BG[product.category] ?? "bg-slate-700/10 text-slate-400"}
                 />
-                <div
-                  className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${ICON_BG[product.category] ?? "bg-slate-700/10 text-slate-400"}`}
-                >
-                  <IconComponent size={28} />
-                </div>
-                <span
-                  className={`absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full border ${CATEGORY_STYLES[product.category]}`}
-                >
+                <span className={`absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full border ${CATEGORY_STYLES[product.category]}`}>
                   {product.category}
                 </span>
-                {/* Price badge */}
                 <div className="absolute top-3 right-3 bg-slate-950/80 backdrop-blur-sm border border-slate-700 rounded-xl px-3 py-1.5 text-center">
                   <p className="text-[10px] text-slate-500 leading-none mb-0.5">precio</p>
-                  <p className="text-white font-bold text-base leading-none">
-                    S/. {product.price}
-                  </p>
+                  <p className="text-white font-bold text-base leading-none">S/. {product.price}</p>
                 </div>
               </div>
 

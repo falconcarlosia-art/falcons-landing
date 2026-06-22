@@ -12,6 +12,11 @@
     "category": "Interruptores",
     "model": "Sonoff Basic R2",
     "app": "eWeLink",
+    "images": [
+      "https://i.ibb.co/Fk8mX3Kz/D-Q-NP-2-X-889867-MLA99538672540-122025-F.webp",
+      "https://m.media-amazon.com/images/I/61EyKvjpLOS._AC_SL1000_.jpg",
+      "https://m.media-amazon.com/images/I/61cB6qom1SL._AC_SL1500_.jpg"
+    ],
     "icon": "ToggleLeft",
     "title": "Interruptor Basic R2",
     "desc": "Control remoto por app eWeLink y voz (Alexa/Google). Convierte dispositivos comunes en inteligentes. 10A/2200W, 100-240V.",
@@ -22,6 +27,11 @@
     "model": "Mini R4",
     "app": "eWeLink",
     "icon": "ToggleLeft",
+    "images":["https://m.media-amazon.com/images/I/61ZX97F89uL._SX522_.jpg",
+    "https://m.media-amazon.com/images/I/61FScLUO+cL._SX522_.jpg",
+    "https://m.media-amazon.com/images/I/71f40oiHkDL._SL1500_.jpg",
+    "https://m.media-amazon.com/images/I/61V+c46o6xL._SL1500_.jpg"
+    ],
     "title": "Interruptor SONOFF Mini R4",
     "desc": "Control por WiFi 2.4GHz y app iOS/Android. Compacto (39.5×33×16.8mm), universal 100-240V 10A. Ideal para hogar y hoteles.",
     "price": 47

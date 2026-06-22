@@ -1,0 +1,83 @@
+[
+  {
+    "category": "Interruptores",
+    "model": "Falcons Automation",
+    "app": "Tuya Smart",
+    "icon": "ToggleLeft",
+    "title": "Mini Interruptor WiFi",
+    "desc": "16A (100-240V). Control remoto por app Tuya/Smart Life y voz (Alexa/Google). Función temporizador. Compacto y versátil.",
+    "price": 27
+  },
+  {
+    "category": "Interruptores",
+    "model": "Sonoff Basic R2",
+    "app": "eWeLink",
+    "icon": "ToggleLeft",
+    "title": "Interruptor Basic R2",
+    "desc": "Control remoto por app eWeLink y voz (Alexa/Google). Convierte dispositivos comunes en inteligentes. 10A/2200W, 100-240V.",
+    "price": 35
+  },
+  {
+    "category": "Interruptores",
+    "model": "Mini R4",
+    "app": "eWeLink",
+    "icon": "ToggleLeft",
+    "title": "Interruptor SONOFF Mini R4",
+    "desc": "Control por WiFi 2.4GHz y app iOS/Android. Compacto (39.5×33×16.8mm), universal 100-240V 10A. Ideal para hogar y hoteles.",
+    "price": 47
+  },
+  {
+    "category": "Pared Táctil",
+    "model": "Tuya RF433",
+    "app": "Tuya Smart",
+    "icon": "LayoutGrid",
+    "title": "Interruptor de Pared 1 Botón",
+    "desc": "Panel de vidrio templado. Alexa/Google Home. Temporizador y memoria de estado tras corte de energía. Sin cable neutro (110-250V).",
+    "price": 42
+  },
+  {
+    "category": "Pared Táctil",
+    "model": "Tuya RF433",
+    "app": "Tuya Smart",
+    "icon": "LayoutGrid",
+    "title": "Interruptor de Pared 2 Botones",
+    "desc": "Panel de vidrio templado. Alexa/Google Home. Temporizador y memoria de estado tras corte de energía. Sin cable neutro (110-250V).",
+    "price": 47
+  },
+  {
+    "category": "Pared Táctil",
+    "model": "Tuya RF433",
+    "app": "Tuya Smart",
+    "icon": "LayoutGrid",
+    "title": "Interruptor de Pared 3 Botones",
+    "desc": "Panel de vidrio templado. Alexa/Google Home. Temporizador y memoria de estado tras corte de energía. Sin cable neutro (110-250V).",
+    "price": 52
+  },
+  {
+    "category": "Sensores",
+    "model": "Tuya Smart",
+    "app": "Tuya Smart",
+    "icon": "ScanFace",
+    "title": "Sensor de Radar de Presencia Humana WiFi",
+    "desc": "Radar 5.8GHz, detección hasta 6m (<90°). Sensibilidad e iluminancia ajustables (0-3000Lux). -10°C a 55°C, IP23, 5V/1A.",
+    "price": 80
+  },
+  {
+    "category": "Sensores",
+    "model": "Tuya Smart",
+    "app": "Tuya Smart",
+    "icon": "DoorOpen",
+    "title": "Sensor Inalámbrico de Puerta",
+    "desc": "Detección inalámbrica 2.4GHz. Batería para 6000 activaciones. Rango 0-40°C. Compatible con Alexa/Google Home.",
+    "price": 35
+  },
+  {
+    "category": "Accesorios",
+    "model": "Tuya Smart",
+    "app": "Tuya Smart",
+    "icon": "Plug",
+    "title": "Enchufe Inteligente 10A USA Quality",
+    "desc": "110V-220V multivoltaje. Alexa/Google Home. Temporización y escenas personalizadas. IP38, ideal para viajes. Garantía 12 meses.",
+    "price": 35
+  }
+]

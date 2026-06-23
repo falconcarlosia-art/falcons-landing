@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import productsData from "./products.json";
 import {
   Zap,
@@ -14,7 +15,6 @@ import {
   Moon,
   Radio,
   Globe,
-  Activity,
   Star,
   CheckCircle,
   Thermometer,
@@ -54,12 +54,10 @@ function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Brand */}
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-500/30">
-              <Activity size={16} className="text-white" />
-            </div>
-            <span className="text-xl font-bold tracking-tight text-white">
-              Falcons
+          <div className="flex items-center gap-1">
+            <img src="/logo-falcons.png" alt="Falcons" className="h-11 w-auto logo-animated" />
+            <span className="text-white text-lg font-semibold tracking-widest uppercase" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+              ALCONS
             </span>
           </div>
 
@@ -78,7 +76,7 @@ function Navbar() {
 
           {/* CTA + hamburger */}
           <div className="flex items-center gap-3">
-            <button className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white text-sm font-semibold transition-all duration-200 shadow-lg shadow-blue-600/30 hover:shadow-blue-500/40">
+            <button className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white text-sm font-semibold transition-all duration-200 shadow-lg shadow-amber-600/30 hover:shadow-amber-500/40">
               Cotizar Proyecto
               <ChevronRight size={14} />
             </button>
@@ -106,7 +104,7 @@ function Navbar() {
               {label}
             </a>
           ))}
-          <button className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-all duration-200">
+          <button className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-sm font-semibold transition-all duration-200">
             Cotizar Proyecto
             <ChevronRight size={14} />
           </button>
@@ -147,12 +145,12 @@ function SmartDashboard() {
 
   const colorMap = {
     blue: {
-      ring: "ring-blue-500/60",
-      glow: "shadow-blue-500/40",
-      bg: "bg-blue-600/20",
-      icon: "text-blue-400",
-      badge: "bg-blue-500/20 text-blue-300 border-blue-500/40",
-      dot: "bg-blue-400",
+      ring: "ring-amber-500/60",
+      glow: "shadow-amber-500/40",
+      bg: "bg-amber-600/20",
+      icon: "text-amber-400",
+      badge: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+      dot: "bg-amber-400",
     },
     indigo: {
       ring: "ring-indigo-500/60",
@@ -175,7 +173,7 @@ function SmartDashboard() {
   return (
     <div className="relative w-full max-w-md mx-auto">
       {/* Ambient glow */}
-      <div className="absolute inset-0 bg-blue-600/10 rounded-2xl blur-3xl -z-10" />
+      <div className="absolute inset-0 bg-amber-600/10 rounded-2xl blur-3xl -z-10" />
 
       <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-700/60 rounded-2xl p-6 shadow-2xl">
         {/* Dashboard header */}
@@ -294,26 +292,26 @@ function Hero() {
         className="absolute inset-0 opacity-[0.03]"
         style={{
           backgroundImage:
-            "linear-gradient(#3b82f6 1px, transparent 1px), linear-gradient(90deg, #3b82f6 1px, transparent 1px)",
+            "linear-gradient(#f59e0b 1px, transparent 1px), linear-gradient(90deg, #f59e0b 1px, transparent 1px)",
           backgroundSize: "60px 60px",
         }}
       />
       {/* Gradient orbs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl" />
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-amber-600/10 rounded-full blur-3xl" />
       <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-emerald-600/8 rounded-full blur-3xl" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left */}
           <div className="space-y-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-600/10 border border-blue-500/20 text-blue-400 text-xs font-medium">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-600/10 border border-amber-500/20 text-amber-400 text-xs font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
               Domótica de próxima generación
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-white">
               Toma el{" "}
-              <span className="bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent">
                 control total
               </span>{" "}
               de tus espacios con Falcons
@@ -326,7 +324,7 @@ function Hero() {
             </p>
 
             <div className="flex flex-wrap gap-4">
-              <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-semibold transition-all duration-200 shadow-xl shadow-blue-600/30 hover:shadow-blue-500/40">
+              <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-600 hover:bg-amber-500 active:scale-95 text-white font-semibold transition-all duration-200 shadow-xl shadow-amber-600/30 hover:shadow-amber-500/40">
                 Ver Productos
                 <ChevronRight size={16} />
               </button>
@@ -394,7 +392,7 @@ function ValueProposition() {
   ];
 
   const colorMap = {
-    blue: "bg-blue-600/10 border-blue-500/20 text-blue-400",
+    blue: "bg-amber-600/10 border-amber-500/20 text-amber-400",
     emerald: "bg-emerald-600/10 border-emerald-500/20 text-emerald-400",
   };
 
@@ -402,7 +400,7 @@ function ValueProposition() {
     <section id="soluciones" className="bg-slate-900 py-24 border-y border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
-          <p className="text-xs font-semibold tracking-widest uppercase text-blue-400 mb-3">
+          <p className="text-xs font-semibold tracking-widest uppercase text-amber-400 mb-3">
             ¿Por qué Falcons?
           </p>
           <h2 className="text-3xl sm:text-4xl font-bold text-white">
@@ -462,7 +460,7 @@ function Lightbox({ images, startIdx, onClose }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [images.length, onClose]);
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-sm flex items-center justify-center p-4"
       onClick={onClose}
@@ -511,7 +509,8 @@ function Lightbox({ images, startIdx, onClose }) {
           </div>
         </>
       )}
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -545,12 +544,19 @@ function ProductCarousel({ images, icon: IconComponent, iconBg }) {
   return (
     <>
       <div className="relative h-44 overflow-hidden bg-slate-800 select-none">
-        <img
-          src={images[idx]}
-          alt={`foto ${idx + 1}`}
-          onClick={() => setLightbox(true)}
-          className="w-full h-full object-cover transition-opacity duration-300 cursor-zoom-in"
-        />
+        {/* Todas las imágenes apiladas — solo cambia opacidad, sin flash */}
+        {images.map((src, i) => (
+          <img
+            key={src}
+            src={src}
+            alt={`foto ${i + 1}`}
+            onClick={() => i === idx && setLightbox(true)}
+            style={{ willChange: "opacity", backfaceVisibility: "hidden" }}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+              i === idx ? "opacity-100 cursor-zoom-in" : "opacity-0 pointer-events-none"
+            }`}
+          />
+        ))}
 
         {images.length > 1 && (
           <>
@@ -592,14 +598,14 @@ const ICON_MAP = {
 
 // Colores por categoría — agregar aquí si se añade una categoría nueva
 const CATEGORY_STYLES = {
-  Interruptores:  "text-blue-400 bg-blue-500/10 border-blue-500/20",
+  Interruptores:  "text-amber-400 bg-amber-500/10 border-amber-500/20",
   "Pared Táctil": "text-indigo-400 bg-indigo-500/10 border-indigo-500/20",
   Sensores:       "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
   Accesorios:     "text-amber-400 bg-amber-500/10 border-amber-500/20",
 };
 
 const ICON_BG = {
-  Interruptores:  "bg-blue-600/10 text-blue-400",
+  Interruptores:  "bg-amber-600/10 text-amber-400",
   "Pared Táctil": "bg-indigo-600/10 text-indigo-400",
   Sensores:       "bg-emerald-600/10 text-emerald-400",
   Accesorios:     "bg-amber-600/10 text-amber-400",
@@ -620,7 +626,7 @@ function ProductShowroom() {
     <section id="productos" className="bg-slate-950 py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
-          <p className="text-xs font-semibold tracking-widest uppercase text-blue-400 mb-3">
+          <p className="text-xs font-semibold tracking-widest uppercase text-amber-400 mb-3">
             Catálogo Real
           </p>
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
@@ -641,7 +647,7 @@ function ProductShowroom() {
               className={`px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200
                 ${
                   active === cat
-                    ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/30"
+                    ? "bg-amber-600 border-amber-600 text-white shadow-lg shadow-amber-600/30"
                     : "bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500 hover:text-white"
                 }`}
             >
@@ -657,7 +663,7 @@ function ProductShowroom() {
             return (
             <div
               key={product.title}
-              className="group bg-slate-900 border border-slate-800 hover:border-slate-600 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-950/80 flex flex-col"
+              className="group bg-slate-900 border border-slate-800 hover:border-slate-600 rounded-2xl overflow-hidden transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-950/80 flex flex-col"
             >
               {/* Carousel */}
               <div className="relative">
@@ -690,7 +696,7 @@ function ProductShowroom() {
 
                 {/* Badges */}
                 <div className="flex flex-wrap gap-2 mb-5">
-                  <span className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-blue-600/10 border border-blue-500/20 text-blue-400">
+                  <span className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-amber-600/10 border border-amber-500/20 text-amber-400">
                     <Wifi size={10} />
                     Wi-Fi
                   </span>
@@ -701,10 +707,15 @@ function ProductShowroom() {
                   </span>
                 </div>
 
-                <button className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-sm font-semibold transition-all duration-200 shadow-lg shadow-emerald-600/20 hover:shadow-emerald-500/30">
+                <a
+                  href={`https://wa.me/51931324454?text=${encodeURIComponent(`Hola, me interesa el producto: ${product.title}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-sm font-semibold transition-all duration-200 shadow-lg shadow-emerald-600/20 hover:shadow-emerald-500/30"
+                >
                   <MessageCircle size={14} />
                   Consultar por WhatsApp
-                </button>
+                </a>
               </div>
             </div>
             );
@@ -729,13 +740,32 @@ function ContactForm() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const [sending, setSending] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("¡Solicitud enviada! Te contactaremos pronto.");
+    setSending(true);
+    try {
+      const res = await fetch("https://formspree.io/f/TU_ID_AQUI", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (res.ok) {
+        alert("¡Solicitud enviada! Te contactaremos en menos de 24h.");
+        setForm({ name: "", phone: "", projectType: "", message: "" });
+      } else {
+        alert("Hubo un error al enviar. Intenta de nuevo.");
+      }
+    } catch {
+      alert("Sin conexión. Intenta de nuevo.");
+    } finally {
+      setSending(false);
+    }
   };
 
   const inputCls =
-    "w-full bg-slate-800/60 border border-slate-700 hover:border-slate-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500/40 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm transition-all duration-200";
+    "w-full bg-slate-800/60 border border-slate-700 hover:border-slate-600 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/40 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm transition-all duration-200";
 
   return (
     <section id="contacto" className="bg-slate-900 py-24 border-t border-slate-800">
@@ -743,12 +773,12 @@ function ContactForm() {
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left — copy */}
           <div className="space-y-6">
-            <p className="text-xs font-semibold tracking-widest uppercase text-blue-400">
+            <p className="text-xs font-semibold tracking-widest uppercase text-amber-400">
               Empieza hoy
             </p>
             <h2 className="text-3xl sm:text-4xl font-bold text-white leading-tight">
               Obtén tu{" "}
-              <span className="bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent">
                 cotización personalizada
               </span>{" "}
               sin costo
@@ -776,7 +806,7 @@ function ContactForm() {
                 {["C", "M", "R"].map((l) => (
                   <div
                     key={l}
-                    className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-slate-900 flex items-center justify-center text-white text-xs font-bold"
+                    className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-600 to-amber-800 border-2 border-slate-900 flex items-center justify-center text-white text-xs font-bold"
                   >
                     {l}
                   </div>
@@ -858,10 +888,11 @@ function ContactForm() {
 
               <button
                 type="submit"
-                className="w-full flex items-center justify-center gap-2.5 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-bold text-sm transition-all duration-200 shadow-xl shadow-blue-600/30 hover:shadow-blue-500/40 mt-2"
+                disabled={sending}
+                className="w-full flex items-center justify-center gap-2.5 py-4 rounded-xl bg-amber-600 hover:bg-amber-500 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-sm transition-all duration-200 shadow-xl shadow-amber-600/30 hover:shadow-amber-500/40 mt-2"
               >
                 <Send size={16} />
-                Enviar Solicitud e Iniciar Cotización
+                {sending ? "Enviando..." : "Enviar Solicitud e Iniciar Cotización"}
               </button>
 
               <p className="text-center text-xs text-slate-600 pt-1">
@@ -881,11 +912,11 @@ function Footer() {
   return (
     <footer className="bg-slate-950 border-t border-slate-800 py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
-            <Activity size={14} className="text-white" />
-          </div>
-          <span className="text-white font-bold">Falcons</span>
+        <div className="flex items-center gap-1">
+          <img src="/logo-falcons.png" alt="Falcons" className="h-7 w-auto" />
+          <span className="text-white text-sm font-semibold tracking-widest uppercase" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+            ALCONS
+          </span>
         </div>
         <p className="text-xs text-slate-600">
           © {new Date().getFullYear()} Falcons Domótica. Todos los derechos reservados.
@@ -913,8 +944,7 @@ export default function FalconsLanding() {
     <div className="min-h-screen bg-slate-950 font-sans antialiased">
       <Navbar />
       <Hero />
-      <ValueProposition />
-      <ProductShowroom />
+<ProductShowroom />
       <ContactForm />
       <Footer />
     </div>

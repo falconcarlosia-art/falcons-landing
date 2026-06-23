@@ -4,6 +4,12 @@
     "model": "Falcons Automation",
     "app": "Tuya Smart",
     "icon": "ToggleLeft",
+    "images":[
+      "https://i.ibb.co/7N165M9Z/7.png",
+      "https://sc04.alicdn.com/kf/H30e37ca10a9f43c59ab7752311be4be5Q/201793084/H30e37ca10a9f43c59ab7752311be4be5Q.jpg",
+      "https://sc04.alicdn.com/kf/H4d9b8afc296c4a8cbc2a358631c65289l/201793084/H4d9b8afc296c4a8cbc2a358631c65289l.jpg",
+      ""
+    ],
     "title": "Mini Interruptor WiFi",
     "desc": "16A (100-240V). Control remoto por app Tuya/Smart Life y voz (Alexa/Google). Función temporizador. Compacto y versátil.",
     "price": 27
@@ -41,7 +47,8 @@
     "model": "Tuya RF433",
     "app": "Tuya Smart",
     "icon": "LayoutGrid",
-    "images": ["https://ae01.alicdn.com/kf/S05ba59c3d79946c199619240a26e7a48A.jpg",
+    "images": ["https://i.ibb.co/CsXc41V9/interruptor-de-pared-wifi-1.png",
+    "https://ae01.alicdn.com/kf/S05ba59c3d79946c199619240a26e7a48A.jpg",
     "https://ae01.alicdn.com/kf/S1e096e94f15a4aaea0df2853251432efi.jpg",
     "https://ae01.alicdn.com/kf/S38b7cba90a5c400797bbb7288dad0920k.jpg",
     "https://ae01.alicdn.com/kf/Sc693110dfca14c62a8de3baeaf3ff671I.jpg",
@@ -57,7 +64,8 @@
     "model": "Tuya RF433",
     "app": "Tuya Smart",
     "icon": "LayoutGrid",
-    "images": ["https://ae01.alicdn.com/kf/S05ba59c3d79946c199619240a26e7a48A.jpg",
+    "images": ["https://i.ibb.co/CsXc41V9/interruptor-de-pared-wifi-1.png",
+      "https://ae01.alicdn.com/kf/S05ba59c3d79946c199619240a26e7a48A.jpg",
     "https://ae01.alicdn.com/kf/S1e096e94f15a4aaea0df2853251432efi.jpg",
     "https://ae01.alicdn.com/kf/S38b7cba90a5c400797bbb7288dad0920k.jpg",
     "https://ae01.alicdn.com/kf/Sc693110dfca14c62a8de3baeaf3ff671I.jpg",
@@ -73,7 +81,9 @@
     "model": "Tuya RF433",
     "app": "Tuya Smart",
     "icon": "LayoutGrid",
-    "images": ["https://ae01.alicdn.com/kf/S05ba59c3d79946c199619240a26e7a48A.jpg",
+    "images": [
+      "https://i.ibb.co/CsXc41V9/interruptor-de-pared-wifi-1.png",
+      "https://ae01.alicdn.com/kf/S05ba59c3d79946c199619240a26e7a48A.jpg",
     "https://ae01.alicdn.com/kf/S1e096e94f15a4aaea0df2853251432efi.jpg",
     "https://ae01.alicdn.com/kf/S38b7cba90a5c400797bbb7288dad0920k.jpg",
     "https://ae01.alicdn.com/kf/Sc693110dfca14c62a8de3baeaf3ff671I.jpg",
@@ -89,6 +99,15 @@
     "model": "Tuya Smart",
     "app": "Tuya Smart",
     "icon": "ScanFace",
+    "images":[
+    "https://ae01.alicdn.com/kf/S5c97c613a0054f98bf179b4b8b153e9dL.jpg?width=790&height=790&hash=1580",
+    "https://ae01.alicdn.com/kf/Sca43912f6042430db1b69788ce250e84T.jpg?width=790&height=1329&hash=2119",
+    "https://ae01.alicdn.com/kf/Sf1f7b9c08b87475db02a69c7153443bcB.jpg?width=790&height=790&hash=1580",
+    "https://ae01.alicdn.com/kf/S65c6e6b9a21d4c219a8ad8fa8ac212ebn.jpg?width=790&height=1331&hash=2121",
+    "https://ae01.alicdn.com/kf/Sa9b3cf1cda5b42ec855756c0bc53b5e4n.jpg?width=790&height=790&hash=1580",
+    "https://ae01.alicdn.com/kf/S5acf11da3f8b455c83c6d056ff77af52R.jpg?width=790&height=2308&hash=3098",
+    "https://ae01.alicdn.com/kf/S5acf11da3f8b455c83c6d056ff77af52R.jpg?width=790&height=2308&hash=3098"
+    ],
     "title": "Sensor de Radar de Presencia Humana WiFi",
     "desc": "Radar 5.8GHz, detección hasta 6m (<90°). Sensibilidad e iluminancia ajustables (0-3000Lux). -10°C a 55°C, IP23, 5V/1A.",
     "price": 80
@@ -98,6 +117,13 @@
     "model": "Tuya Smart",
     "app": "Tuya Smart",
     "icon": "DoorOpen",
+    "images":[
+      "https://sc02.alicdn.com/kf/H467cddd4438a48fca79a64b5987834efs/201793084/H467cddd4438a48fca79a64b5987834efs.png",
+      "https://sc01.alicdn.com/kf/H0e0d2153cfa040fc8706a4ad2827baa4z/201793084/H0e0d2153cfa040fc8706a4ad2827baa4z.png",
+      "https://sc01.alicdn.com/kf/H8a4a76866d334903804d3fc599d2b5c4E/201793084/H8a4a76866d334903804d3fc599d2b5c4E.png",
+      "https://sc02.alicdn.com/kf/H7a7cb4004d4649d78e1faf09ea476b2aR/201793084/H7a7cb4004d4649d78e1faf09ea476b2aR.png",
+      "https://sc02.alicdn.com/kf/H1eac2e8a9af94ab0a411867139e39f51f/201793084/H1eac2e8a9af94ab0a411867139e39f51f.jpg"
+    ],
     "title": "Sensor Inalámbrico de Puerta",
     "desc": "Detección inalámbrica 2.4GHz. Batería para 6000 activaciones. Rango 0-40°C. Compatible con Alexa/Google Home.",
     "price": 35
@@ -106,6 +132,14 @@
     "category": "Accesorios",
     "model": "Tuya Smart",
     "app": "Tuya Smart",
+    "images":[
+      "https://i.ibb.co/0jTcKkQ7/11.png",
+      "https://ae-pic-a1.aliexpress-media.com/kf/Sad89aa520d26433aa83cb28daea16291Y.jpg",
+      "https://ae-pic-a1.aliexpress-media.com/kf/Sa87e3cd87cb44c2ea9a811c4af496549c.jpg",
+      "https://ae-pic-a1.aliexpress-media.com/kf/S3e932fc7e591443d9930eaf4cbe651386.jpg",
+      "https://ae-pic-a1.aliexpress-media.com/kf/S49738735c586427d81377d86ef8ceaa3m.jpg",
+      "https://ae-pic-a1.aliexpress-media.com/kf/S9a3f949cd85a4fc98a6da0da0ba238eay.jpg"
+    ],
     "icon": "Plug",
     "title": "Enchufe Inteligente 10A USA Quality",
     "desc": "110V-220V multivoltaje. Alexa/Google Home. Temporización y escenas personalizadas. IP38, ideal para viajes. Garantía 12 meses.",

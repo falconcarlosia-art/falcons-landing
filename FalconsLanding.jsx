@@ -526,7 +526,7 @@ function ProductCarousel({ images, icon: IconComponent, iconBg }) {
 
   if (!hasImages) {
     return (
-      <div className="relative w-full h-44 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
+      <div className="relative w-full aspect-square bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
         <div
           className="absolute inset-0 opacity-[0.035]"
           style={{
@@ -543,7 +543,7 @@ function ProductCarousel({ images, icon: IconComponent, iconBg }) {
 
   return (
     <>
-      <div className="relative h-44 overflow-hidden bg-slate-800 select-none">
+      <div className="relative aspect-square overflow-hidden bg-slate-800 select-none">
         {/* Todas las imágenes apiladas — solo cambia opacidad, sin flash */}
         {images.map((src, i) => (
           <img

@@ -447,7 +447,7 @@ function ValueProposition() {
 
 // ─── Lightbox ─────────────────────────────────────────────────────────────────
 
-function Lightbox({ images, startIdx, onClose }) {
+function Lightbox({ images, startIdx, onClose, title }) {
   const [idx, setIdx] = useState(startIdx);
 
   useEffect(() => {
@@ -476,7 +476,7 @@ function Lightbox({ images, startIdx, onClose }) {
       {/* Image */}
       <img
         src={images[idx]}
-        alt={`foto ${idx + 1}`}
+        alt={`${title} — foto ${idx + 1} de ${images.length}`}
         onClick={(e) => e.stopPropagation()}
         className="max-h-[85vh] max-w-full rounded-xl object-contain shadow-2xl"
       />
@@ -516,7 +516,7 @@ function Lightbox({ images, startIdx, onClose }) {
 
 // ─── Product Image Carousel ───────────────────────────────────────────────────
 
-function ProductCarousel({ images, icon: IconComponent, iconBg }) {
+function ProductCarousel({ images, icon: IconComponent, iconBg, title }) {
   const [idx, setIdx] = useState(0);
   const [lightbox, setLightbox] = useState(false);
   const hasImages = images && images.length > 0;
@@ -549,7 +549,7 @@ function ProductCarousel({ images, icon: IconComponent, iconBg }) {
           <img
             key={src}
             src={src}
-            alt={`foto ${i + 1}`}
+            alt={`${title} — foto ${i + 1} de ${images.length}`}
             onClick={() => i === idx && setLightbox(true)}
             style={{ willChange: "opacity", backfaceVisibility: "hidden" }}
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
@@ -577,7 +577,7 @@ function ProductCarousel({ images, icon: IconComponent, iconBg }) {
         )}
       </div>
 
-      {lightbox && <Lightbox images={images} startIdx={idx} onClose={() => setLightbox(false)} />}
+      {lightbox && <Lightbox images={images} startIdx={idx} onClose={() => setLightbox(false)} title={title} />}
     </>
   );
 }
@@ -671,6 +671,7 @@ function ProductShowroom() {
                   images={product.images}
                   icon={IconComponent}
                   iconBg={ICON_BG[product.category] ?? "bg-slate-700/10 text-slate-400"}
+                  title={product.title}
                 />
                 <span className={`absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full border ${CATEGORY_STYLES[product.category]}`}>
                   {product.category}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import productsData from "./products.json";
+import { supabase } from "./src/lib/supabaseClient";
 import {
   Zap,
   Leaf,
@@ -618,9 +618,54 @@ const APP_STYLES = {
 
 function ProductShowroom() {
   const [active, setActive] = useState("Todos");
+  const [productsData, setProductsData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    supabase
+      .from("products")
+      .select("id, title, model, category, app, icon, price, images, desc:description")
+      .order("id")
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) {
+          setError(error.message);
+        } else {
+          setProductsData(data);
+        }
+        setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const categories = ["Todos", ...new Set(productsData.map((p) => p.category))];
   const filtered = active === "Todos" ? productsData : productsData.filter((p) => p.category === active);
+
+  if (loading) {
+    return (
+      <section id="productos" className="bg-slate-950 py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-slate-400">
+          Cargando productos...
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section id="productos" className="bg-slate-950 py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-red-400">
+          No se pudo cargar el catálogo. Intenta recargar la página.
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="productos" className="bg-slate-950 py-24">
@@ -662,7 +707,7 @@ function ProductShowroom() {
             const IconComponent = ICON_MAP[product.icon] ?? Zap;
             return (
             <div
-              key={product.title}
+              key={product.id}
               className="group bg-slate-900 border border-slate-800 hover:border-slate-600 rounded-2xl overflow-hidden transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-950/80 flex flex-col"
             >
               {/* Carousel */}

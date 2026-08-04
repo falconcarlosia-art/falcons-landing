@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
+import { Link } from "react-router-dom";
 import { supabase } from "./src/lib/supabaseClient";
+import { slugify } from "./src/lib/slugify";
+import Navbar from "./src/components/Navbar";
+import Footer from "./src/components/Footer";
+import ProductCarousel from "./src/components/ProductCarousel";
 import {
   Zap,
   Leaf,
   Shield,
   Wifi,
-  Menu,
-  X,
   ChevronRight,
   MessageCircle,
   Send,
@@ -24,95 +26,6 @@ import {
   Plug,
   LayoutGrid,
 } from "lucide-react";
-
-// ─── Navbar ──────────────────────────────────────────────────────────────────
-
-function Navbar() {
-  const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  const links = [
-    { label: "Soluciones", href: "#soluciones" },
-    { label: "Productos", href: "#productos" },
-    { label: "Cotizar", href: "#contacto" },
-  ];
-
-  return (
-    <nav
-      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-slate-950/95 backdrop-blur-md border-b border-slate-800 shadow-lg shadow-slate-950/50"
-          : "bg-transparent"
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Brand */}
-          <div className="flex items-center gap-1">
-            <img src="/logo-falcons.png" alt="Falcons" className="h-11 w-auto logo-animated" />
-            <span className="text-white text-lg font-semibold tracking-widest uppercase" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-              ALCONS
-            </span>
-          </div>
-
-          {/* Desktop links */}
-          <div className="hidden md:flex items-center gap-8">
-            {links.map(({ label, href }) => (
-              <a
-                key={label}
-                href={href}
-                className="text-sm font-medium text-slate-400 hover:text-white transition-colors duration-200"
-              >
-                {label}
-              </a>
-            ))}
-          </div>
-
-          {/* CTA + hamburger */}
-          <div className="flex items-center gap-3">
-            <button className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white text-sm font-semibold transition-all duration-200 shadow-lg shadow-amber-600/30 hover:shadow-amber-500/40">
-              Cotizar Proyecto
-              <ChevronRight size={14} />
-            </button>
-            <button
-              className="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-              onClick={() => setOpen(!open)}
-              aria-label="Toggle menu"
-            >
-              {open ? <X size={20} /> : <Menu size={20} />}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile menu */}
-      {open && (
-        <div className="md:hidden bg-slate-950/98 backdrop-blur-md border-t border-slate-800 px-4 pb-4 pt-2">
-          {links.map(({ label, href }) => (
-            <a
-              key={label}
-              href={href}
-              onClick={() => setOpen(false)}
-              className="block py-3 text-sm font-medium text-slate-300 hover:text-white border-b border-slate-800/60 last:border-0 transition-colors"
-            >
-              {label}
-            </a>
-          ))}
-          <button className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-sm font-semibold transition-all duration-200">
-            Cotizar Proyecto
-            <ChevronRight size={14} />
-          </button>
-        </div>
-      )}
-    </nav>
-  );
-}
 
 // ─── Smart Dashboard (Hero right side) ───────────────────────────────────────
 
@@ -445,143 +358,6 @@ function ValueProposition() {
 
 // ─── Product Showroom ─────────────────────────────────────────────────────────
 
-// ─── Lightbox ─────────────────────────────────────────────────────────────────
-
-function Lightbox({ images, startIdx, onClose, title }) {
-  const [idx, setIdx] = useState(startIdx);
-
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === "Escape") onClose();
-      if (e.key === "ArrowRight") setIdx((i) => (i + 1) % images.length);
-      if (e.key === "ArrowLeft") setIdx((i) => (i - 1 + images.length) % images.length);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [images.length, onClose]);
-
-  return createPortal(
-    <div
-      className="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-sm flex items-center justify-center p-4"
-      onClick={onClose}
-    >
-      {/* Close */}
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-white transition-colors"
-      >
-        <X size={18} />
-      </button>
-
-      {/* Image */}
-      <img
-        src={images[idx]}
-        alt={`${title} — foto ${idx + 1} de ${images.length}`}
-        onClick={(e) => e.stopPropagation()}
-        className="max-h-[85vh] max-w-full rounded-xl object-contain shadow-2xl"
-      />
-
-      {/* Prev / Next */}
-      {images.length > 1 && (
-        <>
-          <button
-            onClick={(e) => { e.stopPropagation(); setIdx((i) => (i - 1 + images.length) % images.length); }}
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-white transition-colors"
-          >
-            <ChevronRight size={20} className="rotate-180" />
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); setIdx((i) => (i + 1) % images.length); }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-white transition-colors"
-          >
-            <ChevronRight size={20} />
-          </button>
-
-          {/* Dots */}
-          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
-            {images.map((_, i) => (
-              <button
-                key={i}
-                onClick={(e) => { e.stopPropagation(); setIdx(i); }}
-                className={`h-1.5 rounded-full transition-all duration-200 ${i === idx ? "bg-white w-5" : "bg-white/30 w-1.5"}`}
-              />
-            ))}
-          </div>
-        </>
-      )}
-    </div>,
-    document.body
-  );
-}
-
-// ─── Product Image Carousel ───────────────────────────────────────────────────
-
-function ProductCarousel({ images, icon: IconComponent, iconBg, title }) {
-  const [idx, setIdx] = useState(0);
-  const [lightbox, setLightbox] = useState(false);
-  const hasImages = images && images.length > 0;
-
-  const prev = (e) => { e.stopPropagation(); setIdx((i) => (i - 1 + images.length) % images.length); };
-  const next = (e) => { e.stopPropagation(); setIdx((i) => (i + 1) % images.length); };
-
-  if (!hasImages) {
-    return (
-      <div className="relative w-full aspect-square bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
-        <div
-          className="absolute inset-0 opacity-[0.035]"
-          style={{
-            backgroundImage: "radial-gradient(circle at 1px 1px, #94a3b8 1px, transparent 0)",
-            backgroundSize: "18px 18px",
-          }}
-        />
-        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${iconBg}`}>
-          <IconComponent size={28} />
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      <div className="relative aspect-square overflow-hidden bg-slate-800 select-none">
-        {/* Todas las imágenes apiladas — solo cambia opacidad, sin flash */}
-        {images.map((src, i) => (
-          <img
-            key={src}
-            src={src}
-            alt={`${title} — foto ${i + 1} de ${images.length}`}
-            onClick={() => i === idx && setLightbox(true)}
-            style={{ willChange: "opacity", backfaceVisibility: "hidden" }}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
-              i === idx ? "opacity-100 cursor-zoom-in" : "opacity-0 pointer-events-none"
-            }`}
-          />
-        ))}
-
-        {images.length > 1 && (
-          <>
-            <button onClick={prev} className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-slate-950/70 hover:bg-slate-950/90 flex items-center justify-center text-white transition-all">
-              <ChevronRight size={14} className="rotate-180" />
-            </button>
-            <button onClick={next} className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-slate-950/70 hover:bg-slate-950/90 flex items-center justify-center text-white transition-all">
-              <ChevronRight size={14} />
-            </button>
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
-              {images.map((_, i) => (
-                <button key={i} onClick={(e) => { e.stopPropagation(); setIdx(i); }}
-                  className={`h-1.5 rounded-full transition-all duration-200 ${i === idx ? "bg-white w-3" : "bg-white/40 w-1.5"}`}
-                />
-              ))}
-            </div>
-          </>
-        )}
-      </div>
-
-      {lightbox && <Lightbox images={images} startIdx={idx} onClose={() => setLightbox(false)} title={title} />}
-    </>
-  );
-}
-
 // Íconos disponibles para usar en products.json (campo "icon")
 const ICON_MAP = {
   ToggleLeft,
@@ -730,7 +506,12 @@ function ProductShowroom() {
               <div className="p-5 flex flex-col flex-1">
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <h3 className="text-white font-bold text-base leading-snug flex-1">
-                    {product.title}
+                    <Link
+                      to={`/producto/${product.id}/${slugify(product.title)}`}
+                      className="hover:text-amber-400 transition-colors"
+                    >
+                      {product.title}
+                    </Link>
                   </h3>
                 </div>
 
@@ -949,37 +730,6 @@ function ContactForm() {
         </div>
       </div>
     </section>
-  );
-}
-
-// ─── Footer ───────────────────────────────────────────────────────────────────
-
-function Footer() {
-  return (
-    <footer className="bg-slate-950 border-t border-slate-800 py-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-1">
-          <img src="/logo-falcons.png" alt="Falcons" className="h-7 w-auto" />
-          <span className="text-white text-sm font-semibold tracking-widest uppercase" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-            ALCONS
-          </span>
-        </div>
-        <p className="text-xs text-slate-600">
-          © {new Date().getFullYear()} Falcons Domótica. Todos los derechos reservados.
-        </p>
-        <div className="flex gap-5">
-          {["Privacidad", "Términos", "Contacto"].map((item) => (
-            <a
-              key={item}
-              href="#"
-              className="text-xs text-slate-600 hover:text-slate-400 transition-colors"
-            >
-              {item}
-            </a>
-          ))}
-        </div>
-      </div>
-    </footer>
   );
 }
 

@@ -49,3 +49,40 @@ option {
   background-color: #1e293b;
   color: #f1f5f9;
 }
+
+/* Tiptap table editing (admin only — public page uses Tailwind Typography's table styles) */
+.ProseMirror .tableWrapper {
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+.ProseMirror table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+}
+.ProseMirror td,
+.ProseMirror th {
+  border: 1px solid #475569;
+  padding: 0.4rem 0.6rem;
+  position: relative;
+  vertical-align: top;
+}
+.ProseMirror th {
+  background-color: #1e293b;
+  font-weight: 600;
+}
+.ProseMirror .selectedCell {
+  background-color: rgba(245, 158, 11, 0.15);
+}
+.ProseMirror .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: #f59e0b;
+  pointer-events: none;
+}
+.ProseMirror.resize-cursor {
+  cursor: col-resize;
+}

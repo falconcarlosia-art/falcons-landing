@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
+import RichTextEditor from "./RichTextEditor";
+import SpecsEditor from "./SpecsEditor";
 
 const CATEGORIES = ["Interruptores", "Pared Táctil", "Sensores", "Accesorios"];
 const APPS = ["Tuya Smart", "eWeLink"];
@@ -28,6 +30,8 @@ const emptyProduct = {
   price: "",
   desc: "",
   images: [],
+  extra_info: "",
+  specs: [],
 };
 
 export default function ProductForm() {
@@ -45,14 +49,14 @@ export default function ProductForm() {
     if (isNew) return;
     supabase
       .from("products")
-      .select("id, title, model, category, app, icon, price, images, desc:description")
+      .select("id, title, model, category, app, icon, price, images, extra_info, specs, desc:description")
       .eq("id", id)
       .single()
       .then(({ data, error }) => {
         if (error) {
           setError(error.message);
         } else {
-          setProduct(data);
+          setProduct({ ...data, extra_info: data.extra_info || "", specs: data.specs || [] });
         }
         setLoading(false);
       });
@@ -129,6 +133,8 @@ export default function ProductForm() {
       price: Number(product.price),
       description: product.desc,
       images: product.images,
+      extra_info: product.extra_info || null,
+      specs: product.specs.filter((row) => row.label.trim() || row.value.trim()),
     };
 
     const { error } = isNew
@@ -221,6 +227,26 @@ export default function ProductForm() {
           value={product.desc}
           onChange={handleChange("desc")}
           className={`${inputCls} resize-none`}
+        />
+      </div>
+
+      <div>
+        <label className="block text-xs font-medium text-slate-400 mb-2">
+          Ficha técnica <span className="text-slate-600">(opcional)</span>
+        </label>
+        <SpecsEditor
+          value={product.specs}
+          onChange={(specs) => setProduct((p) => ({ ...p, specs }))}
+        />
+      </div>
+
+      <div>
+        <label className="block text-xs font-medium text-slate-400 mb-2">
+          Información adicional <span className="text-slate-600">(opcional)</span>
+        </label>
+        <RichTextEditor
+          value={product.extra_info}
+          onChange={(html) => setProduct((p) => ({ ...p, extra_info: html }))}
         />
       </div>
 

@@ -25,6 +25,7 @@ import {
   DoorOpen,
   Plug,
   LayoutGrid,
+  Wrench,
 } from "lucide-react";
 
 // ─── Smart Dashboard (Hero right side) ───────────────────────────────────────
@@ -553,6 +554,134 @@ function ProductShowroom() {
   );
 }
 
+// ─── Services Showroom ────────────────────────────────────────────────────────
+
+function ServicesShowroom() {
+  const [active, setActive] = useState("Todos");
+  const [servicesData, setServicesData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    supabase
+      .from("services")
+      .select("id, category, title, description")
+      .order("category")
+      .order("id")
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) {
+          setError(error.message);
+        } else {
+          setServicesData(data);
+        }
+        setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const categories = ["Todos", ...new Set(servicesData.map((s) => s.category))];
+  const filtered = active === "Todos" ? servicesData : servicesData.filter((s) => s.category === active);
+
+  if (loading) {
+    return (
+      <section id="servicios" className="bg-slate-900 py-24 border-y border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-slate-400">
+          Cargando servicios...
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section id="servicios" className="bg-slate-900 py-24 border-y border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-red-400">
+          No se pudieron cargar los servicios. Intenta recargar la página.
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section id="servicios" className="bg-slate-900 py-24 border-y border-slate-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-10">
+          <p className="text-xs font-semibold tracking-widest uppercase text-amber-400 mb-3">
+            Más que hardware
+          </p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            Nuestros Servicios
+          </h2>
+          <p className="text-slate-400 max-w-xl mx-auto">
+            Instalación, configuración y automatización a medida — desde un solo
+            dispositivo hasta tu casa completa.
+          </p>
+        </div>
+
+        {/* Category filter */}
+        <div className="flex flex-wrap justify-center gap-2 mb-12">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActive(cat)}
+              className={`px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200
+                ${
+                  active === cat
+                    ? "bg-amber-600 border-amber-600 text-white shadow-lg shadow-amber-600/30"
+                    : "bg-slate-950 border-slate-700 text-slate-400 hover:border-slate-500 hover:text-white"
+                }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        {/* Grid */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filtered.map((service) => (
+            <div
+              key={service.id}
+              className="group bg-slate-950 border border-slate-800 hover:border-slate-600 rounded-2xl p-6 transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-950/80 flex flex-col"
+            >
+              <div className="w-12 h-12 rounded-xl border flex items-center justify-center mb-5 bg-amber-600/10 border-amber-500/20 text-amber-400 transition-transform duration-300 group-hover:scale-110">
+                <Wrench size={22} />
+              </div>
+
+              <span className="inline-block w-fit text-xs font-semibold px-2.5 py-1 rounded-full border text-amber-400 bg-amber-500/10 border-amber-500/20 mb-3">
+                {service.category}
+              </span>
+
+              <h3 className="text-white font-bold text-base leading-snug mb-2">
+                {service.title}
+              </h3>
+
+              <p className="text-slate-400 text-sm leading-relaxed mb-5 flex-1">
+                {service.description}
+              </p>
+
+              <a
+                href={`https://wa.me/51931324454?text=${encodeURIComponent(`Hola, quiero cotizar el servicio: ${service.title}`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-sm font-semibold transition-all duration-200 shadow-lg shadow-emerald-600/20 hover:shadow-emerald-500/30"
+              >
+                <MessageCircle size={14} />
+                Cotizar por WhatsApp
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ─── Contact / Lead Capture ───────────────────────────────────────────────────
 
 function ContactForm() {
@@ -741,6 +870,7 @@ export default function FalconsLanding() {
       <Navbar />
       <Hero />
 <ProductShowroom />
+      <ServicesShowroom />
       <ContactForm />
       <Footer />
     </div>

@@ -5,6 +5,8 @@ import AdminLogin from "./AdminLogin";
 import AdminLayout from "./AdminLayout";
 import ProductList from "./ProductList";
 import ProductForm from "./ProductForm";
+import ServiceList from "./ServiceList";
+import ServiceForm from "./ServiceForm";
 
 export default function AdminApp() {
   const [session, setSession] = useState(undefined);
@@ -35,6 +37,9 @@ export default function AdminApp() {
         <Route index element={<ProductList />} />
         <Route path="productos/nuevo" element={<ProductForm />} />
         <Route path="productos/:id" element={<ProductForm />} />
+        <Route path="servicios" element={<ServiceList />} />
+        <Route path="servicios/nuevo" element={<ServiceForm />} />
+        <Route path="servicios/:id" element={<ServiceForm />} />
       </Routes>
     </AdminLayout>
   );

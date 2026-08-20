@@ -8,8 +8,16 @@
     ],
     "rewrites": [
       {
-        "source": "**",
+        "source": "/producto/**",
         "destination": "/index.html"
+      },
+      {
+        "source": "/servicios/**",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/admin/**",
+        "destination": "/admin.html"
       }
     ]
   }

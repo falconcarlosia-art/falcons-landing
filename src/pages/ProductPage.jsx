@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link } from "react-router";
 import { Helmet } from "react-helmet-async";
 import { MessageCircle, ChevronRight, Wifi } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
+import { slugify } from "../lib/slugify";
+import { buildWhatsAppLink } from "../lib/whatsapp";
+import { usePrerenderData } from "../lib/PrerenderContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ProductCarousel from "../components/ProductCarousel";
@@ -14,7 +17,8 @@ const APP_STYLES = {
 
 export default function ProductPage() {
   const { id } = useParams();
-  const [product, setProduct] = useState(undefined);
+  const seed = usePrerenderData();
+  const [product, setProduct] = useState(seed?.product !== undefined ? seed.product : undefined);
 
   useEffect(() => {
     let cancelled = false;
@@ -45,6 +49,9 @@ export default function ProductPage() {
   if (product === null) {
     return (
       <div className="min-h-screen bg-slate-950 font-sans antialiased">
+        <Helmet>
+          <meta name="robots" content="noindex" />
+        </Helmet>
         <Navbar />
         <div className="pt-32 pb-24 max-w-xl mx-auto px-4 text-center">
           <h1 className="text-2xl font-bold text-white mb-3">Producto no disponible</h1>
@@ -66,7 +73,8 @@ export default function ProductPage() {
 
   const pageTitle = `${product.title} — Falcons Domótica`;
   const pageDescription = product.desc;
-  const canonicalUrl = `https://falcem.com/producto/${product.id}`;
+  const slug = slugify(product.title);
+  const canonicalUrl = `https://falcem.com/producto/${product.id}/${slug}`;
   const image = product.images?.[0];
 
   const jsonLd = {
@@ -140,7 +148,7 @@ export default function ProductPage() {
             </div>
 
             <a
-              href={`https://wa.me/51931324454?text=${encodeURIComponent(`Hola, me interesa el producto: ${product.title}`)}`}
+              href={buildWhatsAppLink(`Hola, me interesa el producto: ${product.title}`)}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-sm font-semibold transition-all duration-200 shadow-lg shadow-emerald-600/20 hover:shadow-emerald-500/30"

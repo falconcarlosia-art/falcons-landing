@@ -1,10 +1,15 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
+import { Helmet } from "react-helmet-async";
 import { supabase } from "./src/lib/supabaseClient";
 import { slugify } from "./src/lib/slugify";
+import { buildWhatsAppLink } from "./src/lib/whatsapp";
+import { usePrerenderData } from "./src/lib/PrerenderContext";
 import Navbar from "./src/components/Navbar";
 import Footer from "./src/components/Footer";
 import ProductCarousel from "./src/components/ProductCarousel";
+import AboutUs from "./src/components/AboutUs";
+import Faq from "./src/components/Faq";
 import {
   Zap,
   Leaf,
@@ -394,9 +399,10 @@ const APP_STYLES = {
 };
 
 function ProductShowroom() {
+  const seed = usePrerenderData();
   const [active, setActive] = useState("Todos");
-  const [productsData, setProductsData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [productsData, setProductsData] = useState(seed?.products ?? []);
+  const [loading, setLoading] = useState(!seed?.products);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -536,7 +542,7 @@ function ProductShowroom() {
                 </div>
 
                 <a
-                  href={`https://wa.me/51931324454?text=${encodeURIComponent(`Hola, me interesa el producto: ${product.title}`)}`}
+                  href={buildWhatsAppLink(`Hola, me interesa el producto: ${product.title}`)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-sm font-semibold transition-all duration-200 shadow-lg shadow-emerald-600/20 hover:shadow-emerald-500/30"
@@ -557,9 +563,10 @@ function ProductShowroom() {
 // ─── Services Showroom ────────────────────────────────────────────────────────
 
 function ServicesShowroom() {
+  const seed = usePrerenderData();
   const [active, setActive] = useState("Todos");
-  const [servicesData, setServicesData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [servicesData, setServicesData] = useState(seed?.services ?? []);
+  const [loading, setLoading] = useState(!seed?.services);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -658,7 +665,12 @@ function ServicesShowroom() {
               </span>
 
               <h3 className="text-white font-bold text-base leading-snug mb-2">
-                {service.title}
+                <Link
+                  to={`/servicios/${service.id}/${slugify(service.title)}`}
+                  className="hover:text-amber-400 transition-colors"
+                >
+                  {service.title}
+                </Link>
               </h3>
 
               <p className="text-slate-400 text-sm leading-relaxed mb-5 flex-1">
@@ -666,7 +678,7 @@ function ServicesShowroom() {
               </p>
 
               <a
-                href={`https://wa.me/51931324454?text=${encodeURIComponent(`Hola, quiero cotizar el servicio: ${service.title}`)}`}
+                href={buildWhatsAppLink(`Hola, quiero cotizar el servicio: ${service.title}`)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-sm font-semibold transition-all duration-200 shadow-lg shadow-emerald-600/20 hover:shadow-emerald-500/30"
@@ -864,13 +876,58 @@ function ContactForm() {
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 
+const ORGANIZATION_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "HomeAndConstructionBusiness",
+  name: "Falcons",
+  url: "https://falcem.com/",
+  logo: "https://falcem.com/logo-falcons.png",
+  image: "https://falcem.com/logo-falcons.png",
+  telephone: "+51931324454",
+  priceRange: "S/. 27 - S/. 80",
+  areaServed: "PE",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Jr. Artemisa Mz S Lote 28F",
+    addressLocality: "Santiago de Surco",
+    addressRegion: "Lima",
+    addressCountry: "PE",
+  },
+  geo: { "@type": "GeoCoordinates", latitude: -12.169189, longitude: -76.995436 },
+  description:
+    "Automatización y domótica: interruptores WiFi, paneles táctiles, sensores y accesorios inteligentes compatibles con Alexa y Google Home.",
+};
+
 export default function FalconsLanding() {
+  const title = "Falcons — Domótica y Automatización del Hogar en Perú";
+  const description =
+    "Domótica en Lima, Perú: interruptores, paneles táctiles, sensores y accesorios WiFi compatibles con Alexa y Google Home. Cotización gratuita en 24h.";
+
   return (
     <div className="min-h-screen bg-slate-950 font-sans antialiased">
+      <Helmet>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <link rel="canonical" href="https://falcem.com/" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://falcem.com/" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content="https://falcem.com/logo-falcons.png" />
+        <meta property="og:locale" content="es_PE" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content="https://falcem.com/logo-falcons.png" />
+        <script type="application/ld+json">{JSON.stringify(ORGANIZATION_JSON_LD)}</script>
+      </Helmet>
+
       <Navbar />
       <Hero />
-<ProductShowroom />
+      <AboutUs />
+      <ProductShowroom />
       <ServicesShowroom />
+      <Faq />
       <ContactForm />
       <Footer />
     </div>

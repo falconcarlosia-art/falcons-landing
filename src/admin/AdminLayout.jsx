@@ -6,8 +6,13 @@ export default function AdminLayout({ children }) {
   const { pathname } = useLocation();
 
   const tabs = [
-    { label: "Productos", to: "/admin", active: !pathname.startsWith("/admin/servicios") },
+    {
+      label: "Productos",
+      to: "/admin",
+      active: !pathname.startsWith("/admin/servicios") && !pathname.startsWith("/admin/precios"),
+    },
     { label: "Servicios", to: "/admin/servicios", active: pathname.startsWith("/admin/servicios") },
+    { label: "Precios internos", to: "/admin/precios", active: pathname.startsWith("/admin/precios") },
   ];
 
   return (

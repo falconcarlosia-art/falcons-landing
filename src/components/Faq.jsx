@@ -23,7 +23,7 @@ const FAQS = [
   },
   {
     q: "¿En qué zonas de Perú brindan servicio de instalación?",
-    a: "Actualmente brindamos instalación y soporte técnico en Lima Metropolitana, con base de operaciones en Santiago de Surco. Escríbenos por WhatsApp para confirmar cobertura en tu distrito.",
+    a: "Brindamos instalación y soporte técnico en Santiago de Surco, Miraflores, San Isidro y La Molina, y en el resto de Lima Metropolitana, con base de operaciones en Surco. Escríbenos por WhatsApp para confirmar cobertura en tu distrito.",
   },
   {
     q: "¿Necesito internet o un hub especial para usar los dispositivos?",
@@ -47,33 +47,33 @@ const FAQ_JSON_LD = {
 
 export default function Faq() {
   return (
-    <section id="faq" className="bg-slate-950 py-24">
+    <section id="faq" className="py-16 lg:py-20">
       <Helmet>
         <script type="application/ld+json">{JSON.stringify(FAQ_JSON_LD)}</script>
       </Helmet>
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <p className="text-xs font-semibold tracking-widest uppercase text-amber-400 mb-3">
+          <p className="text-xs font-semibold tracking-wider uppercase text-brand mb-2">
             Dudas frecuentes
           </p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white">Preguntas frecuentes</h2>
+          <h2 className="text-2xl sm:text-3xl font-semibold text-ink tracking-tight">Preguntas frecuentes</h2>
         </div>
 
         <div className="space-y-3">
           {FAQS.map(({ q, a }) => (
             <details
               key={q}
-              className="group bg-slate-900 border border-slate-800 rounded-2xl px-5 py-4"
+              className="group bg-surface border border-line rounded-card px-5 py-4 open:border-subtle/60"
             >
-              <summary className="flex items-center justify-between gap-4 cursor-pointer list-none text-white font-semibold text-sm sm:text-base">
+              <summary className="flex items-center justify-between gap-4 cursor-pointer list-none text-ink font-medium min-h-[28px] text-sm sm:text-base">
                 {q}
                 <ChevronDown
                   size={18}
-                  className="flex-shrink-0 text-slate-500 transition-transform duration-200 group-open:rotate-180"
+                  className="flex-shrink-0 text-subtle transition-transform duration-200 group-open:rotate-180"
                 />
               </summary>
-              <p className="text-slate-400 text-sm leading-relaxed mt-3">{a}</p>
+              <p className="text-muted text-sm leading-relaxed mt-3">{a}</p>
             </details>
           ))}
         </div>

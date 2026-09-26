@@ -6,6 +6,14 @@ on:
   push:
     branches:
       - main
+  # Lo que se publica desde /admin vive en Supabase y solo llega al HTML
+  # prerenderizado y al sitemap en un build. Sin esto, un producto/servicio
+  # nuevo queda invisible para los crawlers hasta el siguiente commit.
+  workflow_dispatch:
+  repository_dispatch:
+    types: [publish]
+  schedule:
+    - cron: "0 10 * * *" # 05:00 hora de Lima, diario
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest

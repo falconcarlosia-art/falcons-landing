@@ -1,566 +1,352 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "./src/lib/supabaseClient";
 import { slugify } from "./src/lib/slugify";
 import { buildWhatsAppLink } from "./src/lib/whatsapp";
+import { AREA_SERVED } from "./src/lib/seo";
 import { usePrerenderData } from "./src/lib/PrerenderContext";
-import Navbar from "./src/components/Navbar";
-import Footer from "./src/components/Footer";
-import ProductCarousel from "./src/components/ProductCarousel";
+import { trackEvent } from "./src/lib/analytics";
+import { useProducts } from "./src/lib/useProducts";
+import { buildNav, categoryUrl, formatPrice, productUrl, sortProducts } from "./src/lib/catalog";
+import SiteShell from "./src/components/SiteShell";
+import ProductCard, { ProductCardSkeleton } from "./src/components/ProductCard";
+import ProductImage from "./src/components/ProductImage";
 import AboutUs from "./src/components/AboutUs";
 import Faq from "./src/components/Faq";
+import { iconForCategory, ROOM_ICONS } from "./src/components/catalogIcons";
 import {
-  Zap,
-  Leaf,
-  Shield,
-  Wifi,
+  ArrowRight,
   ChevronRight,
   MessageCircle,
+  Search,
   Send,
-  Sun,
-  Moon,
-  Radio,
-  Globe,
-  Star,
-  CheckCircle,
-  Thermometer,
-  ToggleLeft,
-  ScanFace,
-  DoorOpen,
-  Plug,
-  LayoutGrid,
+  ShieldCheck,
   Wrench,
+  MapPin,
+  Mic,
+  CheckCircle,
 } from "lucide-react";
 
-// ─── Smart Dashboard (Hero right side) ───────────────────────────────────────
-
-function SmartDashboard() {
-  const [active, setActive] = useState(null);
-
-  const modes = [
-    {
-      id: "cinema",
-      label: "Modo Cine",
-      icon: <Sun size={20} />,
-      color: "blue",
-      status: "Listo",
-    },
-    {
-      id: "night",
-      label: "Modo Noche",
-      icon: <Moon size={20} />,
-      color: "indigo",
-      status: "Standby",
-    },
-    {
-      id: "security",
-      label: "Seguridad Activa",
-      icon: <Shield size={20} />,
-      color: "emerald",
-      status: "Monitoreando",
-    },
-  ];
-
-  const colorMap = {
-    blue: {
-      ring: "ring-amber-500/60",
-      glow: "shadow-amber-500/40",
-      bg: "bg-amber-600/20",
-      icon: "text-amber-400",
-      badge: "bg-amber-500/20 text-amber-300 border-amber-500/40",
-      dot: "bg-amber-400",
-    },
-    indigo: {
-      ring: "ring-indigo-500/60",
-      glow: "shadow-indigo-500/40",
-      bg: "bg-indigo-600/20",
-      icon: "text-indigo-400",
-      badge: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40",
-      dot: "bg-indigo-400",
-    },
-    emerald: {
-      ring: "ring-emerald-500/60",
-      glow: "shadow-emerald-500/40",
-      bg: "bg-emerald-600/20",
-      icon: "text-emerald-400",
-      badge: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
-      dot: "bg-emerald-400",
-    },
-  };
-
+function SectionHeader({ eyebrow, title, action }) {
   return (
-    <div className="relative w-full max-w-md mx-auto">
-      {/* Ambient glow */}
-      <div className="absolute inset-0 bg-amber-600/10 rounded-2xl blur-3xl -z-10" />
-
-      <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-700/60 rounded-2xl p-6 shadow-2xl">
-        {/* Dashboard header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-widest">
-              Smart Home
-            </p>
-            <h3 className="text-white font-semibold text-lg">Panel de Control</h3>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs text-emerald-400 font-medium">Online</span>
-          </div>
-        </div>
-
-        {/* Metrics row */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
-          {[
-            { label: "Temp.", value: "22°C", icon: <Thermometer size={14} /> },
-            { label: "Energía", value: "1.2 kW", icon: <Zap size={14} /> },
-            { label: "Dispositivos", value: "12", icon: <Wifi size={14} /> },
-          ].map(({ label, value, icon }) => (
-            <div
-              key={label}
-              className="bg-slate-800/60 border border-slate-700/40 rounded-xl p-3 text-center"
-            >
-              <div className="flex items-center justify-center text-slate-400 mb-1">
-                {icon}
-              </div>
-              <p className="text-white text-sm font-bold">{value}</p>
-              <p className="text-slate-500 text-xs">{label}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Mode toggles */}
-        <div className="space-y-3">
-          {modes.map((mode) => {
-            const isActive = active === mode.id;
-            const c = colorMap[mode.color];
-            return (
-              <button
-                key={mode.id}
-                onClick={() => setActive(isActive ? null : mode.id)}
-                className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 text-left
-                  ${
-                    isActive
-                      ? `${c.bg} ${c.ring} ring-1 shadow-lg ${c.glow} border-transparent`
-                      : "bg-slate-800/40 border-slate-700/40 hover:border-slate-600/60 hover:bg-slate-800/70"
-                  }`}
-              >
-                {/* Icon with pulse ring */}
-                <div className="relative flex-shrink-0">
-                  <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300
-                    ${isActive ? c.bg : "bg-slate-700/60"}
-                    ${c.icon}`}
-                  >
-                    {mode.icon}
-                  </div>
-                  {isActive && (
-                    <>
-                      <span
-                        className={`absolute inset-0 rounded-xl ${c.ring} ring-1 animate-ping opacity-50`}
-                      />
-                      <span
-                        className={`absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ${c.dot} shadow-sm`}
-                      />
-                    </>
-                  )}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <p
-                    className={`text-sm font-semibold transition-colors ${
-                      isActive ? "text-white" : "text-slate-300"
-                    }`}
-                  >
-                    {mode.label}
-                  </p>
-                  <p className="text-xs text-slate-500 mt-0.5">{mode.status}</p>
-                </div>
-
-                <div
-                  className={`text-xs font-medium px-2.5 py-1 rounded-full border transition-all duration-300
-                  ${isActive ? c.badge : "bg-slate-700/40 text-slate-500 border-slate-700/40"}`}
-                >
-                  {isActive ? "Activo" : "Off"}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Bottom bar */}
-        <div className="mt-5 pt-4 border-t border-slate-700/40 flex items-center justify-between">
-          <p className="text-xs text-slate-500">Última sync: hace 2s</p>
-          <div className="flex items-center gap-1">
-            <Radio size={12} className="text-emerald-500" />
-            <span className="text-xs text-emerald-500 font-medium">Zigbee</span>
-          </div>
-        </div>
+    <div className="flex items-end justify-between gap-4 mb-8">
+      <div>
+        {eyebrow && (
+          <p className="text-xs font-semibold tracking-wider uppercase text-brand mb-2">{eyebrow}</p>
+        )}
+        <h2 className="text-2xl sm:text-3xl font-semibold text-ink tracking-tight">{title}</h2>
       </div>
+      {action}
     </div>
   );
 }
 
-// ─── Hero ─────────────────────────────────────────────────────────────────────
-
-function Hero() {
+function SeeAll({ to, children }) {
   return (
-    <section className="relative min-h-screen flex items-center bg-slate-950 overflow-hidden pt-16">
-      {/* Grid background */}
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage:
-            "linear-gradient(#f59e0b 1px, transparent 1px), linear-gradient(90deg, #f59e0b 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
-        }}
-      />
-      {/* Gradient orbs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-amber-600/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-emerald-600/8 rounded-full blur-3xl" />
-
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          {/* Left */}
-          <div className="space-y-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-600/10 border border-amber-500/20 text-amber-400 text-xs font-medium">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-              Domótica de próxima generación
-            </div>
-
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-white">
-              Toma el{" "}
-              <span className="bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent">
-                control total
-              </span>{" "}
-              de tus espacios con Falcons
-            </h1>
-
-            <p className="text-lg text-slate-400 leading-relaxed max-w-xl">
-              Automatiza tu hogar o empresa con tecnología de precisión. Confort
-              inteligente, seguridad reforzada y ahorro energético real — todo
-              desde un solo panel de control.
-            </p>
-
-            <div className="flex flex-wrap gap-4">
-              <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-600 hover:bg-amber-500 active:scale-95 text-white font-semibold transition-all duration-200 shadow-xl shadow-amber-600/30 hover:shadow-amber-500/40">
-                Ver Productos
-                <ChevronRight size={16} />
-              </button>
-              <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-slate-600 hover:border-slate-400 text-slate-300 hover:text-white font-semibold transition-all duration-200 hover:bg-slate-800/50 active:scale-95">
-                Asesoría Gratuita
-              </button>
-            </div>
-
-            {/* Trust badges */}
-            <div className="flex flex-wrap items-center gap-6 pt-2">
-              {[
-                { icon: <CheckCircle size={14} />, text: "+200 proyectos" },
-                { icon: <Star size={14} />, text: "4.9/5 satisfacción" },
-                { icon: <Shield size={14} />, text: "Garantía 2 años" },
-              ].map(({ icon, text }) => (
-                <div
-                  key={text}
-                  className="flex items-center gap-1.5 text-sm text-slate-500"
-                >
-                  <span className="text-emerald-500">{icon}</span>
-                  {text}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Right — Smart Dashboard */}
-          <div className="lg:justify-self-end w-full">
-            <SmartDashboard />
-          </div>
-        </div>
-      </div>
-    </section>
+    <Link
+      to={to}
+      className="shrink-0 inline-flex items-center gap-1 text-sm font-semibold text-brand hover:text-brand-hover"
+    >
+      {children} <ArrowRight size={15} />
+    </Link>
   );
 }
 
-// ─── Value Proposition ────────────────────────────────────────────────────────
+// ─── Hero ─────────────────────────────────────────────────────────────────────
+// En 3 segundos: qué vendemos, desde cuánto y cómo se compra. Los productos
+// de la derecha son reales (destacados del catálogo), no una ilustración.
 
-function ValueProposition() {
-  const features = [
-    {
-      icon: <Zap size={24} />,
-      title: "Ultra-fast Response",
-      desc: "Latencia < 50ms en comandos locales para reacción instantánea.",
-      color: "blue",
-    },
-    {
-      icon: <Leaf size={24} />,
-      title: "Eficiencia Energética",
-      desc: "Reduce hasta un 35% el consumo con automatización inteligente.",
-      color: "emerald",
-    },
-    {
-      icon: <Shield size={24} />,
-      title: "Protocolos Seguros",
-      desc: "Compatibilidad nativa con Zigbee 3.0, Wi-Fi 6 y Modbus RTU.",
-      color: "blue",
-    },
-    {
-      icon: <Globe size={24} />,
-      title: "Control Remoto",
-      desc: "Gestiona todo desde cualquier lugar con nuestra app móvil.",
-      color: "emerald",
-    },
-  ];
+function Hero({ products, nav }) {
+  const navigate = useNavigate();
+  const [query, setQuery] = useState("");
+  const showcase = sortProducts(products.filter((p) => p.images.length > 0)).slice(0, 4);
+  const minPrice = products.length ? Math.min(...products.map((p) => Number(p.price))) : null;
 
-  const colorMap = {
-    blue: "bg-amber-600/10 border-amber-500/20 text-amber-400",
-    emerald: "bg-emerald-600/10 border-emerald-500/20 text-emerald-400",
+  const submit = (e) => {
+    e.preventDefault();
+    const q = query.trim();
+    navigate(q ? `/productos?q=${encodeURIComponent(q)}` : "/productos");
   };
 
   return (
-    <section id="soluciones" className="bg-slate-900 py-24 border-y border-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-14">
-          <p className="text-xs font-semibold tracking-widest uppercase text-amber-400 mb-3">
-            ¿Por qué Falcons?
+    <section className="relative overflow-hidden pt-24 pb-14 lg:pt-32 lg:pb-20">
+      <div
+        aria-hidden="true"
+        className="absolute -top-40 right-0 w-[640px] h-[640px] rounded-full bg-brand/[0.06] blur-3xl pointer-events-none"
+      />
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div>
+          <p className="inline-flex items-center gap-2 text-xs font-medium text-muted">
+            <MapPin size={14} className="text-brand" />
+            Surco · Miraflores · San Isidro · La Molina
           </p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white">
-            Tecnología que trabaja para ti
-          </h2>
-        </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {features.map(({ icon, title, desc, color }) => (
-            <div
-              key={title}
-              className="group bg-slate-950/50 border border-slate-800 hover:border-slate-700 rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-950/50"
-            >
-              <div
-                className={`w-12 h-12 rounded-xl border flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110 ${colorMap[color]}`}
+          <h1 className="mt-5 text-4xl sm:text-5xl lg:text-[3.5rem] font-semibold leading-[1.08] tracking-tight text-ink">
+            Domótica en Lima para <span className="text-brand">casas y departamentos</span>
+          </h1>
+
+          <p className="mt-5 text-lg text-muted leading-relaxed max-w-xl">
+            Interruptores, sensores y accesorios inteligentes que controlas desde el celular o con tu voz,
+            compatibles con Alexa y Google Home. Sin obras
+            {minPrice !== null && (
+              <>
+                {" "}y desde <span className="text-ink font-semibold tabular">{formatPrice(minPrice)}</span>
+              </>
+            )}
+            .
+          </p>
+
+          <form onSubmit={submit} role="search" className="mt-8 max-w-xl">
+            <label className="relative block">
+              <span className="sr-only">Buscar productos</span>
+              <Search size={19} className="absolute left-4 top-1/2 -translate-y-1/2 text-subtle pointer-events-none" />
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="¿Qué quieres automatizar? Ej: interruptor, sensor…"
+                className="w-full h-14 pl-12 pr-32 rounded-2xl bg-surface border border-line focus:border-brand focus:outline-none text-base text-ink placeholder:text-subtle"
+              />
+              <button
+                type="submit"
+                className="absolute right-2 top-1/2 -translate-y-1/2 h-10 px-5 rounded-xl bg-brand hover:bg-brand-hover text-brand-ink text-sm font-semibold"
               >
-                {icon}
-              </div>
-              <h3 className="text-white font-semibold mb-2">{title}</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>
+                Buscar
+              </button>
+            </label>
+          </form>
+
+          {nav?.categories.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {nav.categories.slice(0, 4).map((c) => (
+                <Link
+                  key={c.slug}
+                  to={categoryUrl(c.name)}
+                  className="h-9 px-3.5 inline-flex items-center rounded-full border border-line text-sm text-muted hover:text-ink hover:border-subtle"
+                >
+                  {c.name}
+                </Link>
+              ))}
             </div>
-          ))}
+          )}
+
+          <div className="mt-8 flex flex-col sm:flex-row gap-3">
+            <Link
+              to="/productos"
+              className="h-12 px-6 inline-flex items-center justify-center gap-2 rounded-xl bg-brand hover:bg-brand-hover text-brand-ink font-semibold transition-colors"
+            >
+              Ver catálogo{nav ? ` (${nav.total})` : ""}
+              <ChevronRight size={17} />
+            </Link>
+            <a
+              href="#contacto"
+              className="h-12 px-6 inline-flex items-center justify-center gap-2 rounded-xl border border-line hover:border-subtle hover:bg-surface text-ink font-semibold transition-colors"
+            >
+              Agenda una visita técnica gratuita
+            </a>
+          </div>
         </div>
 
-        {/* Protocol badges */}
-        <div className="mt-12 flex flex-wrap justify-center gap-3">
-          {["Zigbee 3.0", "Wi-Fi 6", "Modbus RTU", "Z-Wave", "BLE 5.0", "MQTT"].map(
-            (badge) => (
-              <span
-                key={badge}
-                className="px-3 py-1.5 rounded-full text-xs font-medium bg-slate-800 border border-slate-700 text-slate-400"
-              >
-                {badge}
-              </span>
-            )
-          )}
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          {showcase.length > 0
+            ? showcase.map((p, i) => (
+                <Link
+                  key={p.id}
+                  to={productUrl(p)}
+                  className={`group relative rounded-card overflow-hidden ${i % 2 === 1 ? "translate-y-6 sm:translate-y-10" : ""}`}
+                >
+                  <ProductImage
+                    src={p.images[0]}
+                    alt={p.title}
+                    className="aspect-square"
+                    imgClassName="group-hover:scale-105"
+                    eager={i < 2}
+                  />
+                  <div className="absolute inset-x-2 bottom-2 sm:inset-x-3 sm:bottom-3 flex items-center justify-between gap-2 rounded-xl bg-white/90 backdrop-blur px-3 py-2">
+                    <span className="text-xs sm:text-sm font-medium text-slate-900 truncate">{p.title}</span>
+                    <span className="text-xs sm:text-sm font-semibold text-slate-900 tabular shrink-0">
+                      {formatPrice(p.price)}
+                    </span>
+                  </div>
+                </Link>
+              ))
+            : Array.from({ length: 4 }, (_, i) => (
+                <div
+                  key={i}
+                  className={`aspect-square rounded-card bg-surface animate-pulse ${i % 2 === 1 ? "translate-y-6 sm:translate-y-10" : ""}`}
+                />
+              ))}
         </div>
       </div>
     </section>
   );
 }
 
-// ─── Product Showroom ─────────────────────────────────────────────────────────
+// ─── Barra de confianza ─────────────────────────────────────────────────────
+// Solo afirmaciones que el sitio ya respalda. Pendiente de confirmar con el
+// negocio antes de agregar: envíos a provincias y medios de pago.
 
-// Íconos disponibles para usar en products.json (campo "icon")
-const ICON_MAP = {
-  ToggleLeft,
-  LayoutGrid,
-  ScanFace,
-  DoorOpen,
-  Plug,
-  Thermometer,
-  Zap,
-  Shield,
-  Wifi,
-  Globe,
-};
+function TrustBar() {
+  const items = [
+    { icon: ShieldCheck, title: "Garantía de 2 años", text: "En productos e instalación" },
+    { icon: MessageCircle, title: "Asesoría gratis", text: "Te ayudamos a elegir por WhatsApp" },
+    { icon: Wrench, title: "Instalación profesional", text: "Técnicos propios en Lima" },
+    { icon: Mic, title: "Control por voz", text: "Alexa y Google Home" },
+  ];
+  return (
+    <section className="border-y border-line bg-surface/50">
+      <ul className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-5">
+        {items.map(({ icon: Icon, title, text }) => (
+          <li key={title} className="flex items-start gap-3">
+            <span className="w-10 h-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center shrink-0">
+              <Icon size={19} />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-ink">{title}</p>
+              <p className="text-xs text-muted mt-0.5">{text}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
 
-// Colores por categoría — agregar aquí si se añade una categoría nueva
-const CATEGORY_STYLES = {
-  Interruptores:  "text-amber-400 bg-amber-500/10 border-amber-500/20",
-  "Pared Táctil": "text-indigo-400 bg-indigo-500/10 border-indigo-500/20",
-  Sensores:       "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
-  Accesorios:     "text-amber-400 bg-amber-500/10 border-amber-500/20",
-};
+// ─── Comprar por ambiente (o por categoría mientras no haya ambientes) ─────
 
-const ICON_BG = {
-  Interruptores:  "bg-amber-600/10 text-amber-400",
-  "Pared Táctil": "bg-indigo-600/10 text-indigo-400",
-  Sensores:       "bg-emerald-600/10 text-emerald-400",
-  Accesorios:     "bg-amber-600/10 text-amber-400",
-};
-
-const APP_STYLES = {
-  "Tuya Smart": "bg-orange-500/10 border-orange-500/20 text-orange-400",
-  eWeLink:      "bg-sky-500/10 border-sky-500/20 text-sky-400",
-};
-
-function ProductShowroom() {
-  const seed = usePrerenderData();
-  const [active, setActive] = useState("Todos");
-  const [productsData, setProductsData] = useState(seed?.products ?? []);
-  const [loading, setLoading] = useState(!seed?.products);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    supabase
-      .from("products")
-      .select("id, title, model, category, app, icon, price, images, desc:description")
-      .order("id")
-      .then(({ data, error }) => {
-        if (cancelled) return;
-        if (error) {
-          setError(error.message);
-        } else {
-          setProductsData(data);
-        }
-        setLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const categories = ["Todos", ...new Set(productsData.map((p) => p.category))];
-  const filtered = active === "Todos" ? productsData : productsData.filter((p) => p.category === active);
-
-  if (loading) {
-    return (
-      <section id="productos" className="bg-slate-950 py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-slate-400">
-          Cargando productos...
-        </div>
-      </section>
-    );
-  }
-
-  if (error) {
-    return (
-      <section id="productos" className="bg-slate-950 py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-red-400">
-          No se pudo cargar el catálogo. Intenta recargar la página.
-        </div>
-      </section>
-    );
-  }
+function ShopBy({ nav }) {
+  if (!nav) return null;
+  const byRoom = nav.rooms.length > 0;
+  const tiles = byRoom
+    ? nav.rooms.map((r) => ({ key: r.value, label: r.label, count: r.count, to: `/productos?ambiente=${r.value}`, Icon: ROOM_ICONS[r.value] }))
+    : nav.categories.map((c) => ({ key: c.slug, label: c.name, count: c.count, to: categoryUrl(c.name), Icon: iconForCategory(c.name) }));
+  if (tiles.length === 0) return null;
 
   return (
-    <section id="productos" className="bg-slate-950 py-24">
+    <section className="py-16 lg:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10">
-          <p className="text-xs font-semibold tracking-widest uppercase text-amber-400 mb-3">
-            Catálogo Real
-          </p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Nuestros Productos
-          </h2>
-          <p className="text-slate-400 max-w-xl mx-auto">
-            Dispositivos WiFi certificados, compatibles con Alexa, Google Home y las apps
-            líderes de domótica.
-          </p>
-        </div>
-
-        {/* Category filter */}
-        <div className="flex flex-wrap justify-center gap-2 mb-12">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActive(cat)}
-              className={`px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200
-                ${
-                  active === cat
-                    ? "bg-amber-600 border-amber-600 text-white shadow-lg shadow-amber-600/30"
-                    : "bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500 hover:text-white"
-                }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-
-        {/* Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((product) => {
-            const IconComponent = ICON_MAP[product.icon] ?? Zap;
-            return (
-            <div
-              key={product.id}
-              className="group bg-slate-900 border border-slate-800 hover:border-slate-600 rounded-2xl overflow-hidden transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-950/80 flex flex-col"
-            >
-              {/* Carousel */}
-              <div className="relative">
-                <ProductCarousel
-                  images={product.images}
-                  icon={IconComponent}
-                  iconBg={ICON_BG[product.category] ?? "bg-slate-700/10 text-slate-400"}
-                  title={product.title}
-                />
-                <span className={`absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full border ${CATEGORY_STYLES[product.category]}`}>
-                  {product.category}
+        <SectionHeader
+          eyebrow={byRoom ? "Compra por ambiente" : "Compra por categoría"}
+          title={byRoom ? "¿Qué parte de tu casa quieres automatizar?" : "Encuentra lo que necesitas"}
+        />
+        <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+          {tiles.map(({ key, label, count, to, Icon }) => (
+            <li key={key}>
+              <Link
+                to={to}
+                className="group flex flex-col justify-between h-32 sm:h-36 p-4 sm:p-5 rounded-card bg-surface border border-line hover:border-brand/50 transition-colors"
+              >
+                <span className="w-11 h-11 rounded-xl bg-brand/10 text-brand flex items-center justify-center group-hover:bg-brand group-hover:text-brand-ink transition-colors">
+                  {Icon && <Icon size={21} />}
                 </span>
-                <div className="absolute top-3 right-3 bg-slate-950/80 backdrop-blur-sm border border-slate-700 rounded-xl px-3 py-1.5 text-center">
-                  <p className="text-[10px] text-slate-500 leading-none mb-0.5">precio</p>
-                  <p className="text-white font-bold text-base leading-none">S/. {product.price}</p>
-                </div>
-              </div>
-
-              <div className="p-5 flex flex-col flex-1">
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <h3 className="text-white font-bold text-base leading-snug flex-1">
-                    <Link
-                      to={`/producto/${product.id}/${slugify(product.title)}`}
-                      className="hover:text-amber-400 transition-colors"
-                    >
-                      {product.title}
-                    </Link>
-                  </h3>
-                </div>
-
-                <p className="text-xs text-slate-500 mb-1">Modelo: {product.model}</p>
-
-                <p className="text-slate-400 text-sm leading-relaxed mb-5 flex-1">
-                  {product.desc}
-                </p>
-
-                {/* Badges */}
-                <div className="flex flex-wrap gap-2 mb-5">
-                  <span className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-amber-600/10 border border-amber-500/20 text-amber-400">
-                    <Wifi size={10} />
-                    Wi-Fi
+                <span>
+                  <span className="block text-[15px] font-semibold text-ink">{label}</span>
+                  <span className="text-xs text-subtle tabular">
+                    {count} {count === 1 ? "producto" : "productos"}
                   </span>
-                  <span
-                    className={`px-2 py-1 rounded-md text-xs font-medium border ${APP_STYLES[product.app]}`}
-                  >
-                    {product.app}
-                  </span>
-                </div>
-
-                <a
-                  href={buildWhatsAppLink(`Hola, me interesa el producto: ${product.title}`)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-sm font-semibold transition-all duration-200 shadow-lg shadow-emerald-600/20 hover:shadow-emerald-500/30"
-                >
-                  <MessageCircle size={14} />
-                  Consultar por WhatsApp
-                </a>
-              </div>
-            </div>
-            );
-          })}
-        </div>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
 }
 
-// ─── Services Showroom ────────────────────────────────────────────────────────
+// ─── Productos destacados ───────────────────────────────────────────────────
+
+function Featured({ products, loading, error, total }) {
+  const featured = sortProducts(products.filter((p) => p.category !== "Kits")).slice(0, 8);
+
+  return (
+    <section id="productos" className="py-16 lg:py-20 bg-surface/40 border-y border-line">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <SectionHeader
+          eyebrow="Catálogo"
+          title="Productos destacados"
+          action={<SeeAll to="/productos">Ver los {total || ""} productos</SeeAll>}
+        />
+        {error && products.length === 0 ? (
+          <p className="text-center text-red-400 py-10">No se pudo cargar el catálogo. Intenta recargar la página.</p>
+        ) : (
+          <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+            {loading && products.length === 0
+              ? Array.from({ length: 8 }, (_, i) => (
+                  <li key={i}>
+                    <ProductCardSkeleton />
+                  </li>
+                ))
+              : featured.map((p) => (
+                  <li key={p.id}>
+                    <ProductCard product={p} />
+                  </li>
+                ))}
+          </ul>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// ─── Kits (productos de la categoría "Kits") ────────────────────────────────
+
+function Kits({ products }) {
+  const kits = products.filter((p) => p.category === "Kits");
+  if (kits.length === 0) return null;
+  return (
+    <section className="py-16 lg:py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <SectionHeader
+          eyebrow="Listos para instalar"
+          title="Kits con precio cerrado"
+          action={<SeeAll to={categoryUrl("Kits")}>Ver kits</SeeAll>}
+        />
+        <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+          {kits.slice(0, 4).map((p) => (
+            <li key={p.id}>
+              <ProductCard product={p} />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+// ─── Funciona con ───────────────────────────────────────────────────────────
+
+function WorksWith({ nav }) {
+  if (!nav) return null;
+  const items = [
+    ...nav.ecosystems.map((e) => ({ key: e.value, label: e.label, to: `/productos?ecosistema=${e.value}` })),
+    ...nav.apps.map((a) => ({ key: a.value, label: `App ${a.label}`, to: `/productos?app=${encodeURIComponent(a.value)}` })),
+  ];
+  if (items.length === 0) return null;
+
+  return (
+    <section className="py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row lg:items-center gap-5 lg:gap-10">
+        <p className="text-sm font-semibold text-ink shrink-0">Funciona con</p>
+        <ul className="flex flex-wrap gap-2 sm:gap-3">
+          {items.map((i) => (
+            <li key={i.key}>
+              <Link
+                to={i.to}
+                className="h-11 px-5 inline-flex items-center rounded-xl bg-surface border border-line text-sm font-medium text-muted hover:text-ink hover:border-subtle transition-colors"
+              >
+                {i.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+// ─── Servicios ──────────────────────────────────────────────────────────────
 
 function ServicesShowroom() {
   const seed = usePrerenderData();
@@ -595,111 +381,82 @@ function ServicesShowroom() {
   const categories = ["Todos", ...new Set(servicesData.map((s) => s.category))];
   const filtered = active === "Todos" ? servicesData : servicesData.filter((s) => s.category === active);
 
-  if (loading) {
-    return (
-      <section id="servicios" className="bg-slate-900 py-24 border-y border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-slate-400">
-          Cargando servicios...
-        </div>
-      </section>
-    );
-  }
-
-  if (error) {
-    return (
-      <section id="servicios" className="bg-slate-900 py-24 border-y border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-red-400">
-          No se pudieron cargar los servicios. Intenta recargar la página.
-        </div>
-      </section>
-    );
-  }
-
   return (
-    <section id="servicios" className="bg-slate-900 py-24 border-y border-slate-800">
+    <section id="servicios" className="py-16 lg:py-20 bg-surface/40 border-y border-line">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10">
-          <p className="text-xs font-semibold tracking-widest uppercase text-amber-400 mb-3">
-            Más que hardware
-          </p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Nuestros Servicios
-          </h2>
-          <p className="text-slate-400 max-w-xl mx-auto">
-            Instalación, configuración y automatización a medida — desde un solo
-            dispositivo hasta tu casa completa.
-          </p>
-        </div>
+        <SectionHeader eyebrow="Más que productos" title="Instalación y servicios" />
+        <p className="text-muted max-w-2xl -mt-4 mb-8">
+          Instalación, configuración y automatización a medida — desde un solo dispositivo hasta tu casa completa.
+        </p>
 
-        {/* Category filter */}
-        <div className="flex flex-wrap justify-center gap-2 mb-12">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActive(cat)}
-              className={`px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200
-                ${
-                  active === cat
-                    ? "bg-amber-600 border-amber-600 text-white shadow-lg shadow-amber-600/30"
-                    : "bg-slate-950 border-slate-700 text-slate-400 hover:border-slate-500 hover:text-white"
-                }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-
-        {/* Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((service) => (
-            <div
-              key={service.id}
-              className="group bg-slate-950 border border-slate-800 hover:border-slate-600 rounded-2xl p-6 transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-950/80 flex flex-col"
-            >
-              <div className="w-12 h-12 rounded-xl border flex items-center justify-center mb-5 bg-amber-600/10 border-amber-500/20 text-amber-400 transition-transform duration-300 group-hover:scale-110">
-                <Wrench size={22} />
-              </div>
-
-              <span className="inline-block w-fit text-xs font-semibold px-2.5 py-1 rounded-full border text-amber-400 bg-amber-500/10 border-amber-500/20 mb-3">
-                {service.category}
-              </span>
-
-              <h3 className="text-white font-bold text-base leading-snug mb-2">
-                <Link
-                  to={`/servicios/${service.id}/${slugify(service.title)}`}
-                  className="hover:text-amber-400 transition-colors"
+        {loading ? (
+          <p className="text-muted">Cargando servicios…</p>
+        ) : error ? (
+          <p className="text-red-400">No se pudieron cargar los servicios. Intenta recargar la página.</p>
+        ) : (
+          <>
+            <div className="flex gap-2 mb-8 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setActive(cat)}
+                  aria-pressed={active === cat}
+                  className={`shrink-0 h-9 px-4 rounded-full text-sm font-medium border transition-colors ${
+                    active === cat
+                      ? "bg-brand/15 border-brand text-brand"
+                      : "bg-surface border-line text-muted hover:text-ink hover:border-subtle"
+                  }`}
                 >
-                  {service.title}
-                </Link>
-              </h3>
-
-              <p className="text-slate-400 text-sm leading-relaxed mb-5 flex-1">
-                {service.description}
-              </p>
-
-              <a
-                href={buildWhatsAppLink(`Hola, quiero cotizar el servicio: ${service.title}`)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-sm font-semibold transition-all duration-200 shadow-lg shadow-emerald-600/20 hover:shadow-emerald-500/30"
-              >
-                <MessageCircle size={14} />
-                Cotizar por WhatsApp
-              </a>
+                  {cat}
+                </button>
+              ))}
             </div>
-          ))}
-        </div>
+
+            <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filtered.map((service) => (
+                <li
+                  key={service.id}
+                  className="group relative flex flex-col rounded-card bg-surface border border-line hover:border-subtle/60 p-5 sm:p-6 transition-colors"
+                >
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-subtle">{service.category}</span>
+                  <h3 className="text-base font-semibold text-ink leading-snug mt-2 mb-2">
+                    <Link
+                      to={`/servicios/${service.id}/${slugify(service.title)}`}
+                      className="hover:text-brand transition-colors"
+                    >
+                      {service.title}
+                    </Link>
+                  </h3>
+                  <p className="text-muted text-sm leading-relaxed mb-5 flex-1 line-clamp-4">{service.description}</p>
+                  <a
+                    href={buildWhatsAppLink(`Hola, quiero cotizar el servicio: ${service.title}`)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-wa-hover hover:text-green-300"
+                  >
+                    <MessageCircle size={16} />
+                    Cotizar por WhatsApp
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </div>
     </section>
   );
 }
 
-// ─── Contact / Lead Capture ───────────────────────────────────────────────────
+// ─── Contacto / visita técnica ──────────────────────────────────────────────
+
+const DISTRICTS = ["Santiago de Surco", "Miraflores", "San Isidro", "La Molina", "Otro distrito de Lima"];
 
 function ContactForm() {
   const [form, setForm] = useState({
     name: "",
     phone: "",
+    district: "",
     projectType: "",
     message: "",
   });
@@ -708,167 +465,103 @@ function ContactForm() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const [sending, setSending] = useState(false);
-
-  const handleSubmit = async (e) => {
+  // La solicitud se entrega por WhatsApp (el canal que ya atiende el
+  // negocio) con los datos prellenados — así no depende de un servicio de
+  // formularios externo y el lead llega calificado (distrito + inmueble).
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setSending(true);
-    try {
-      const res = await fetch("https://formspree.io/f/TU_ID_AQUI", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      if (res.ok) {
-        alert("¡Solicitud enviada! Te contactaremos en menos de 24h.");
-        setForm({ name: "", phone: "", projectType: "", message: "" });
-      } else {
-        alert("Hubo un error al enviar. Intenta de nuevo.");
-      }
-    } catch {
-      alert("Sin conexión. Intenta de nuevo.");
-    } finally {
-      setSending(false);
-    }
+    const lines = [
+      "Hola, quiero agendar una visita técnica gratuita.",
+      `Nombre: ${form.name}`,
+      `Teléfono: ${form.phone}`,
+      `Distrito: ${form.district}`,
+      `Tipo de inmueble: ${form.projectType}`,
+      form.message && `Detalle: ${form.message}`,
+    ].filter(Boolean);
+    trackEvent("submit_visita", { district: form.district, project_type: form.projectType });
+    window.open(buildWhatsAppLink(lines.join("\n")), "_blank", "noopener,noreferrer");
   };
 
+  const labelCls = "block text-xs font-medium text-muted mb-2";
   const inputCls =
-    "w-full bg-slate-800/60 border border-slate-700 hover:border-slate-600 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/40 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm transition-all duration-200";
+    "w-full h-12 bg-bg border border-line hover:border-subtle focus:border-brand focus:outline-none rounded-xl px-4 text-ink placeholder:text-subtle text-base sm:text-sm transition-colors";
 
   return (
-    <section id="contacto" className="bg-slate-900 py-24 border-t border-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          {/* Left — copy */}
-          <div className="space-y-6">
-            <p className="text-xs font-semibold tracking-widest uppercase text-amber-400">
-              Empieza hoy
-            </p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white leading-tight">
-              Obtén tu{" "}
-              <span className="bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent">
-                cotización personalizada
-              </span>{" "}
-              sin costo
-            </h2>
-            <p className="text-slate-400 leading-relaxed">
-              Cuéntanos sobre tu espacio y necesidades. Nuestro equipo de ingenieros
-              te contactará en menos de 24 horas con una propuesta técnica a medida.
-            </p>
-
-            <div className="space-y-4 pt-2">
-              {[
-                { icon: <CheckCircle size={16} />, text: "Diagnóstico técnico gratuito" },
-                { icon: <CheckCircle size={16} />, text: "Propuesta en 24h" },
-                { icon: <CheckCircle size={16} />, text: "Sin compromiso de contratación" },
-              ].map(({ icon, text }) => (
-                <div key={text} className="flex items-center gap-3 text-sm text-slate-300">
-                  <span className="text-emerald-500 flex-shrink-0">{icon}</span>
-                  {text}
-                </div>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-4 pt-4">
-              <div className="flex -space-x-2">
-                {["C", "M", "R"].map((l) => (
-                  <div
-                    key={l}
-                    className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-600 to-amber-800 border-2 border-slate-900 flex items-center justify-center text-white text-xs font-bold"
-                  >
-                    {l}
-                  </div>
-                ))}
-              </div>
-              <p className="text-sm text-slate-400">
-                <span className="text-white font-semibold">+200 clientes</span> confían
-                en Falcons
-              </p>
-            </div>
-          </div>
-
-          {/* Right — form */}
-          <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-8 shadow-2xl">
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label className="block text-xs font-medium text-slate-400 mb-2">
-                  Nombre Completo
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={form.name}
-                  onChange={handleChange}
-                  placeholder="Carlos Falcón"
-                  className={inputCls}
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-slate-400 mb-2">
-                  Teléfono / WhatsApp
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={form.phone}
-                  onChange={handleChange}
-                  placeholder="+52 55 1234 5678"
-                  className={inputCls}
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-slate-400 mb-2">
-                  Tipo de Proyecto
-                </label>
-                <select
-                  name="projectType"
-                  value={form.projectType}
-                  onChange={handleChange}
-                  className={`${inputCls} cursor-pointer`}
-                  required
-                >
-                  <option value="" disabled>
-                    Selecciona una opción...
-                  </option>
-                  <option value="residencial">Residencial</option>
-                  <option value="comercial">Comercial / Oficinas</option>
-                  <option value="industrial">Industrial Ligero</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-slate-400 mb-2">
-                  Cuéntanos sobre tu espacio
-                </label>
-                <textarea
-                  name="message"
-                  value={form.message}
-                  onChange={handleChange}
-                  rows={4}
-                  placeholder="Ej: Casa de 2 pisos, 4 habitaciones, quiero automatizar iluminación, climatización y seguridad..."
-                  className={`${inputCls} resize-none`}
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={sending}
-                className="w-full flex items-center justify-center gap-2.5 py-4 rounded-xl bg-amber-600 hover:bg-amber-500 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-sm transition-all duration-200 shadow-xl shadow-amber-600/30 hover:shadow-amber-500/40 mt-2"
-              >
-                <Send size={16} />
-                {sending ? "Enviando..." : "Enviar Solicitud e Iniciar Cotización"}
-              </button>
-
-              <p className="text-center text-xs text-slate-600 pt-1">
-                Al enviar aceptas nuestra política de privacidad. Sin spam.
-              </p>
-            </form>
-          </div>
+    <section id="contacto" className="py-16 lg:py-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="space-y-6">
+          <p className="text-xs font-semibold tracking-wider uppercase text-brand">Visita técnica gratuita</p>
+          <h2 className="text-3xl sm:text-4xl font-semibold text-ink tracking-tight leading-tight">
+            ¿Quieres automatizar tu casa completa?
+          </h2>
+          <p className="text-muted leading-relaxed">
+            Cuéntanos sobre tu espacio y te enviamos una propuesta a medida. Te respondemos por WhatsApp en menos de 24
+            horas.
+          </p>
+          <ul className="space-y-3 pt-2">
+            {["Diagnóstico técnico gratuito", "Propuesta en 24h", "Sin compromiso de contratación"].map((text) => (
+              <li key={text} className="flex items-center gap-3 text-sm text-ink">
+                <CheckCircle size={17} className="text-wa-hover shrink-0" />
+                {text}
+              </li>
+            ))}
+          </ul>
         </div>
+
+        <form onSubmit={handleSubmit} className="rounded-card bg-surface border border-line p-5 sm:p-8 space-y-4">
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="c-name" className={labelCls}>Nombre</label>
+              <input id="c-name" type="text" name="name" value={form.name} onChange={handleChange} placeholder="Tu nombre" autoComplete="name" className={inputCls} required />
+            </div>
+            <div>
+              <label htmlFor="c-phone" className={labelCls}>Teléfono / WhatsApp</label>
+              <input id="c-phone" type="tel" name="phone" value={form.phone} onChange={handleChange} placeholder="999 999 999" autoComplete="tel" inputMode="tel" className={inputCls} required />
+            </div>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="c-district" className={labelCls}>Distrito</label>
+              <select id="c-district" name="district" value={form.district} onChange={handleChange} className={`${inputCls} cursor-pointer`} required>
+                <option value="" disabled>Selecciona tu distrito…</option>
+                {DISTRICTS.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="c-type" className={labelCls}>Tipo de inmueble</label>
+              <select id="c-type" name="projectType" value={form.projectType} onChange={handleChange} className={`${inputCls} cursor-pointer`} required>
+                <option value="" disabled>Selecciona…</option>
+                <option value="Casa">Casa</option>
+                <option value="Departamento">Departamento</option>
+                <option value="Oficina / Comercio">Oficina / Comercio</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="c-msg" className={labelCls}>¿Qué quieres automatizar? (opcional)</label>
+            <textarea
+              id="c-msg"
+              name="message"
+              value={form.message}
+              onChange={handleChange}
+              rows={3}
+              placeholder="Ej: departamento de 3 dormitorios, quiero automatizar luces y cortinas…"
+              className={`${inputCls} h-auto py-3 resize-none`}
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full h-12 flex items-center justify-center gap-2 rounded-xl bg-wa hover:bg-wa-hover text-white font-semibold transition-colors"
+          >
+            <Send size={17} />
+            Agendar visita técnica por WhatsApp
+          </button>
+        </form>
       </div>
     </section>
   );
@@ -879,13 +572,14 @@ function ContactForm() {
 const ORGANIZATION_JSON_LD = {
   "@context": "https://schema.org",
   "@type": "HomeAndConstructionBusiness",
+  "@id": "https://falcem.com/#organization",
   name: "Falcons",
   url: "https://falcem.com/",
   logo: "https://falcem.com/logo-falcons.png",
   image: "https://falcem.com/logo-falcons.png",
-  telephone: "+51931324454",
+  telephone: "+51926644490",
   priceRange: "S/. 27 - S/. 80",
-  areaServed: "PE",
+  areaServed: AREA_SERVED,
   address: {
     "@type": "PostalAddress",
     streetAddress: "Jr. Artemisa Mz S Lote 28F",
@@ -899,12 +593,16 @@ const ORGANIZATION_JSON_LD = {
 };
 
 export default function FalconsLanding() {
-  const title = "Falcons — Domótica y Automatización del Hogar en Perú";
+  const title = "Domótica en Lima | Instalación de Casas Inteligentes – Falcons";
   const description =
-    "Domótica en Lima, Perú: interruptores, paneles táctiles, sensores y accesorios WiFi compatibles con Alexa y Google Home. Cotización gratuita en 24h.";
+    "Instalamos domótica en casas y departamentos de Surco, Miraflores, San Isidro y La Molina: iluminación, cortinas, seguridad y control por voz. Visita técnica gratuita.";
+
+  const { products, loading, error } = useProducts();
+  const seed = usePrerenderData();
+  const nav = seed?.nav ?? (products.length ? buildNav(products) : null);
 
   return (
-    <div className="min-h-screen bg-slate-950 font-sans antialiased">
+    <SiteShell>
       <Helmet>
         <title>{title}</title>
         <meta name="description" content={description} />
@@ -922,14 +620,16 @@ export default function FalconsLanding() {
         <script type="application/ld+json">{JSON.stringify(ORGANIZATION_JSON_LD)}</script>
       </Helmet>
 
-      <Navbar />
-      <Hero />
-      <AboutUs />
-      <ProductShowroom />
+      <Hero products={products} nav={nav} />
+      <TrustBar />
+      <ShopBy nav={nav} />
+      <Featured products={products} loading={loading} error={error} total={nav?.total} />
+      <Kits products={products} />
+      <WorksWith nav={nav} />
       <ServicesShowroom />
+      <AboutUs />
       <Faq />
       <ContactForm />
-      <Footer />
-    </div>
+    </SiteShell>
   );
 }

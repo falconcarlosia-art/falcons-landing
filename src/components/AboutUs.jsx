@@ -12,14 +12,14 @@ export default function AboutUs() {
   ];
 
   return (
-    <section id="nosotros" className="bg-slate-900 py-24 border-y border-slate-800">
+    <section id="nosotros" className="py-16 lg:py-20">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <p className="text-xs font-semibold tracking-widest uppercase text-amber-400 mb-3">
+        <p className="text-xs font-semibold tracking-wider uppercase text-brand mb-2">
           Quiénes somos
         </p>
-        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-8">Sobre Falcons</h2>
+        <h2 className="text-2xl sm:text-3xl font-semibold text-ink tracking-tight mb-6">Sobre Falcons</h2>
 
-        <p className="text-slate-400 leading-relaxed mb-5">
+        <p className="text-muted leading-relaxed mb-5">
           Somos Falcons, una empresa peruana especializada en domótica y
           automatización de espacios residenciales y comerciales. Diseñamos e
           instalamos soluciones de iluminación, seguridad y climatización
@@ -27,7 +27,7 @@ export default function AboutUs() {
           Home.
         </p>
 
-        <p className="text-slate-400 leading-relaxed mb-10">
+        <p className="text-muted leading-relaxed mb-10">
           Nuestro equipo de ingenieros acompaña cada proyecto de principio a
           fin: desde el diagnóstico técnico gratuito hasta la instalación,
           configuración y soporte post-venta. Operamos desde Santiago de
@@ -36,8 +36,8 @@ export default function AboutUs() {
 
         <div className="flex flex-wrap justify-center gap-6">
           {highlights.map(({ icon, text }) => (
-            <div key={text} className="flex items-center gap-1.5 text-sm text-slate-300">
-              <span className="text-emerald-500">{icon}</span>
+            <div key={text} className="flex items-center gap-1.5 text-sm text-ink">
+              <span className="text-wa-hover">{icon}</span>
               {text}
             </div>
           ))}

@@ -2,9 +2,19 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
+import "@fontsource/orbitron/latin-600.css";
+import "@fontsource/geist/latin-400.css";
+import "@fontsource/geist/latin-500.css";
+import "@fontsource/geist/latin-600.css";
+import "@fontsource/geist/latin-700.css";
+import "@fontsource/geist-mono/latin-400.css";
+import "@fontsource/geist-mono/latin-500.css";
 import "./index.css";
 import AppRoutes from "./routes.jsx";
 import { PrerenderContext } from "./lib/PrerenderContext.js";
+import { initAnalytics } from "./lib/analytics.js";
+
+initAnalytics();
 
 function readInitialData() {
   const el = document.getElementById("__PRERENDER_DATA__");

@@ -2,24 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Smooth scroll */
+/* Smooth scroll — scroll-padding compensa el navbar fijo al saltar a anclas */
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  background-color: #0b0f17;
+  color: #f1f5f9;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #0b0f17;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #263244;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #3a4a63;
+}
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* Espacio para la barra inferior de iPhone (home indicator) */
+  .pb-safe {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
 }
 
 /* Logo glow animation */

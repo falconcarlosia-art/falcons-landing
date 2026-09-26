@@ -3,9 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import RichTextEditor from "./RichTextEditor";
 import SpecsEditor from "./SpecsEditor";
-
-const CATEGORIES = ["Interruptores", "Pared Táctil", "Sensores", "Accesorios"];
-const APPS = ["Tuya Smart", "eWeLink"];
+import VariantsEditor from "./VariantsEditor";
+import { APPS, CATEGORIES, ECOSYSTEMS, PRODUCT_SELECT, PROTOCOLS, ROOMS, normalizeProduct } from "../lib/catalog";
 const ICONS = [
   "ToggleLeft",
   "LayoutGrid",
@@ -32,6 +31,14 @@ const emptyProduct = {
   images: [],
   extra_info: "",
   specs: [],
+  protocol: "wifi",
+  ecosystems: ["alexa", "google"],
+  rooms: [],
+  needs_neutral: null,
+  needs_hub: false,
+  in_stock: true,
+  featured: false,
+  variants: [],
 };
 
 export default function ProductForm() {
@@ -49,14 +56,15 @@ export default function ProductForm() {
     if (isNew) return;
     supabase
       .from("products")
-      .select("id, title, model, category, app, icon, price, images, extra_info, specs, desc:description")
+      .select(PRODUCT_SELECT)
       .eq("id", id)
       .single()
       .then(({ data, error }) => {
         if (error) {
           setError(error.message);
         } else {
-          setProduct({ ...data, extra_info: data.extra_info || "", specs: data.specs || [] });
+          const p = normalizeProduct(data);
+          setProduct({ ...p, images: data.images || [], extra_info: data.extra_info || "", specs: data.specs || [] });
         }
         setLoading(false);
       });
@@ -65,6 +73,15 @@ export default function ProductForm() {
   const handleChange = (field) => (e) => {
     setProduct((p) => ({ ...p, [field]: e.target.value }));
   };
+
+  const toggleIn = (field, value) => {
+    setProduct((p) => ({
+      ...p,
+      [field]: p[field].includes(value) ? p[field].filter((v) => v !== value) : [...p[field], value],
+    }));
+  };
+
+  const setBool = (field) => (e) => setProduct((p) => ({ ...p, [field]: e.target.checked }));
 
   const handleUpload = async (e) => {
     const files = Array.from(e.target.files || []);
@@ -135,6 +152,16 @@ export default function ProductForm() {
       images: product.images,
       extra_info: product.extra_info || null,
       specs: product.specs.filter((row) => row.label.trim() || row.value.trim()),
+      protocol: product.protocol,
+      ecosystems: product.ecosystems,
+      rooms: product.rooms,
+      needs_neutral: product.needs_neutral,
+      needs_hub: product.needs_hub,
+      in_stock: product.in_stock,
+      featured: product.featured,
+      variants: product.variants
+        .map((v) => ({ label: v.label.trim(), options: v.options.map((o) => o.trim()).filter(Boolean) }))
+        .filter((v) => v.label && v.options.length > 0),
     };
 
     const { error } = isNew
@@ -229,6 +256,83 @@ export default function ProductForm() {
           className={`${inputCls} resize-none`}
         />
       </div>
+
+      <fieldset className="rounded-xl border border-slate-800 p-4 space-y-4">
+        <legend className="px-2 text-xs font-semibold text-slate-300">Compatibilidad y filtros de la tienda</legend>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-medium text-slate-400 mb-2">Conexión</label>
+            <select value={product.protocol} onChange={handleChange("protocol")} className={`${inputCls} cursor-pointer`}>
+              {PROTOCOLS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-400 mb-2">¿Necesita cable neutro?</label>
+            <select
+              value={product.needs_neutral === null ? "" : String(product.needs_neutral)}
+              onChange={(e) =>
+                setProduct((p) => ({ ...p, needs_neutral: e.target.value === "" ? null : e.target.value === "true" }))
+              }
+              className={`${inputCls} cursor-pointer`}
+            >
+              <option value="">No aplica</option>
+              <option value="true">Sí, necesita neutro</option>
+              <option value="false">No, funciona sin neutro</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <p className="text-xs font-medium text-slate-400 mb-2">Funciona con</p>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            {ECOSYSTEMS.map((o) => (
+              <label key={o.value} className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
+                <input type="checkbox" checked={product.ecosystems.includes(o.value)} onChange={() => toggleIn("ecosystems", o.value)} className="accent-amber-500" />
+                {o.label}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p className="text-xs font-medium text-slate-400 mb-2">Ambientes donde se usa</p>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            {ROOMS.map((o) => (
+              <label key={o.value} className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
+                <input type="checkbox" checked={product.rooms.includes(o.value)} onChange={() => toggleIn("rooms", o.value)} className="accent-amber-500" />
+                {o.label}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-x-6 gap-y-2">
+          <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
+            <input type="checkbox" checked={product.needs_hub} onChange={setBool("needs_hub")} className="accent-amber-500" />
+            Necesita hub
+          </label>
+          <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
+            <input type="checkbox" checked={product.in_stock} onChange={setBool("in_stock")} className="accent-amber-500" />
+            Disponible (en stock)
+          </label>
+          <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
+            <input type="checkbox" checked={product.featured} onChange={setBool("featured")} className="accent-amber-500" />
+            Destacado en la home
+          </label>
+        </div>
+
+        <div>
+          <p className="text-xs font-medium text-slate-400 mb-2">
+            Variantes <span className="text-slate-600">(opcional — ej. Canales: 1, 2, 3)</span>
+          </p>
+          <VariantsEditor value={product.variants} onChange={(variants) => setProduct((p) => ({ ...p, variants }))} />
+        </div>
+      </fieldset>
 
       <div>
         <label className="block text-xs font-medium text-slate-400 mb-2">

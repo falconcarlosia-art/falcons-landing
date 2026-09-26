@@ -134,6 +134,12 @@ async function main() {
 function buildSitemapXml({ products, services, categories, slugify }) {
   const urls = [
     { loc: `${SITE_URL}/`, changefreq: "weekly", priority: "1.0" },
+    { loc: `${SITE_URL}/productos`, changefreq: "weekly", priority: "0.9" },
+    ...categories.map((c) => ({
+      loc: `${SITE_URL}/productos/${c.slug}`,
+      changefreq: "weekly",
+      priority: "0.8",
+    })),
     ...products.map((p) => ({
       loc: `${SITE_URL}/producto/${p.id}/${slugify(p.title)}`,
       changefreq: "weekly",

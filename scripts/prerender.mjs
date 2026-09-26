@@ -87,6 +87,17 @@ async function main() {
     .replace("<!--app-data-->", "");
   await writePage("admin.html", adminHtml);
 
+  // Shell neutro para /producto/** y /servicios/** sin HTML prerenderizado
+  // (slug viejo tras renombrar, o creado después del último build). Antes
+  // caían en index.html y Google recibía el HTML y el canonical de la Home.
+  // Sin canonical ni noindex: la página real los pone al renderizar, o
+  // redirige al slug vigente (ver src/lib/useCanonicalSlug.js).
+  const detailHtml = template
+    .replace("<!--app-head-->", "<title>Falcons Domótica</title>")
+    .replace("<!--app-html-->", "")
+    .replace("<!--app-data-->", "");
+  await writePage("detalle.html", detailHtml);
+
   // Home
   await writePage("index.html", injectPage(render("/", { products: listProducts, services, nav })));
 

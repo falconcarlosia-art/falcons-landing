@@ -24,11 +24,11 @@
       },
       {
         "source": "/producto/**",
-        "destination": "/index.html"
+        "destination": "/detalle.html"
       },
       {
         "source": "/servicios/**",
-        "destination": "/index.html"
+        "destination": "/detalle.html"
       },
       {
         "source": "/admin/**",

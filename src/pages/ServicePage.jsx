@@ -8,9 +8,10 @@ import { buildWhatsAppLink } from "../lib/whatsapp";
 import SiteShell from "../components/SiteShell";
 import { AREA_SERVED, ORGANIZATION_ID } from "../lib/seo";
 import { usePrerenderData } from "../lib/PrerenderContext";
+import { useCanonicalSlug } from "../lib/useCanonicalSlug";
 
 export default function ServicePage() {
-  const { id } = useParams();
+  const { id, slug: urlSlug } = useParams();
   const seed = usePrerenderData();
   const [service, setService] = useState(seed?.service !== undefined ? seed.service : undefined);
 
@@ -31,6 +32,8 @@ export default function ServicePage() {
       cancelled = true;
     };
   }, [id]);
+
+  useCanonicalSlug(service, "/servicios", urlSlug);
 
   if (service === undefined) {
     return (

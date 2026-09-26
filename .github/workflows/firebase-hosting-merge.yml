@@ -23,6 +23,8 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          # GA4 (G-XXXXXXXXXX). Si el secret no existe, analytics queda desactivado.
+          VITE_GA_ID: ${{ secrets.VITE_GA_ID }}
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}

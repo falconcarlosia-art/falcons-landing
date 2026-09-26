@@ -30,6 +30,8 @@ import {
   normalizeProduct,
   toListItem,
 } from "../lib/catalog";
+import { productBrand, productSku } from "../lib/seo";
+import { useCanonicalSlug } from "../lib/useCanonicalSlug";
 import SiteShell from "../components/SiteShell";
 import ProductGallery from "../components/ProductGallery";
 import ProductCard from "../components/ProductCard";
@@ -181,7 +183,7 @@ function RelatedRow({ title, products }) {
 }
 
 export default function ProductPage() {
-  const { id } = useParams();
+  const { id, slug: urlSlug } = useParams();
   const seed = usePrerenderData();
   const seedMatches = seed?.product && String(seed.product.id) === id;
 
@@ -240,6 +242,7 @@ export default function ProductPage() {
   }, [product]);
 
   useEffect(() => () => clearTimeout(addedTimer.current), []);
+  useCanonicalSlug(product, "/producto", urlSlug);
 
   if (product === undefined) {
     return (
@@ -283,6 +286,7 @@ export default function ProductPage() {
   const canonicalUrl = `${SITE_URL}/producto/${product.id}/${slug}`;
   const image = product.images[0];
   const ecosystems = product.ecosystems.map((e) => labelOf(ECOSYSTEMS, e));
+  const brand = productBrand(product);
 
   const jsonLd = [
     {
@@ -291,9 +295,9 @@ export default function ProductPage() {
       name: product.title,
       description: product.desc,
       image: product.images,
-      sku: product.model || undefined,
+      sku: productSku(product),
       category: product.category,
-      brand: { "@type": "Brand", name: "Falcons" },
+      brand: brand ? { "@type": "Brand", name: brand } : undefined,
       offers: {
         "@type": "Offer",
         priceCurrency: "PEN",

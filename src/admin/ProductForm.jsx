@@ -5,6 +5,7 @@ import RichTextEditor from "./RichTextEditor";
 import SpecsEditor from "./SpecsEditor";
 import VariantsEditor from "./VariantsEditor";
 import { APPS, CATEGORIES, ECOSYSTEMS, PRODUCT_SELECT, PROTOCOLS, ROOMS, normalizeProduct } from "../lib/catalog";
+import { KNOWN_BRANDS, productBrand, productSku } from "../lib/seo";
 const ICONS = [
   "ToggleLeft",
   "LayoutGrid",
@@ -23,6 +24,8 @@ const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const emptyProduct = {
   title: "",
   model: "",
+  brand: "",
+  sku: "",
   category: CATEGORIES[0],
   app: APPS[0],
   icon: ICONS[0],
@@ -64,7 +67,7 @@ export default function ProductForm() {
           setError(error.message);
         } else {
           const p = normalizeProduct(data);
-          setProduct({ ...p, images: data.images || [], extra_info: data.extra_info || "", specs: data.specs || [] });
+          setProduct({ ...p, brand: data.brand || "", sku: data.sku || "", images: data.images || [], extra_info: data.extra_info || "", specs: data.specs || [] });
         }
         setLoading(false);
       });
@@ -144,6 +147,8 @@ export default function ProductForm() {
     const payload = {
       title: product.title,
       model: product.model,
+      brand: product.brand.trim() || null,
+      sku: product.sku.trim() || null,
       category: product.category,
       app: product.app,
       icon: product.icon,
@@ -198,6 +203,35 @@ export default function ProductForm() {
       <div>
         <label className="block text-xs font-medium text-slate-400 mb-2">Modelo</label>
         <input value={product.model} onChange={handleChange("model")} className={inputCls} />
+      </div>
+
+      {/* Marca y SKU alimentan el schema Product (Google). Vacíos = se
+          detectan del título/modelo; el placeholder muestra qué se usaría. */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-xs font-medium text-slate-400 mb-2">Marca</label>
+          <input
+            list="brand-options"
+            value={product.brand}
+            onChange={handleChange("brand")}
+            placeholder={`Automático: ${productBrand({ ...product, brand: "" }) ?? "sin marca"}`}
+            className={inputCls}
+          />
+          <datalist id="brand-options">
+            {[...KNOWN_BRANDS, "Falcons"].map((b) => (
+              <option key={b} value={b} />
+            ))}
+          </datalist>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-slate-400 mb-2">SKU / código</label>
+          <input
+            value={product.sku}
+            onChange={handleChange("sku")}
+            placeholder={`Automático: ${productSku({ ...product, sku: "" }) ?? "sin SKU"}`}
+            className={inputCls}
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-4">

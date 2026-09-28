@@ -1,6 +1,7 @@
-import { formatPrice } from "./catalog.js";
+import { formatPrice, productUrl } from "./catalog.js";
 
 const WHATSAPP_NUMBER = "51926644490";
+const SITE_URL = "https://falcem.com";
 export const WHATSAPP_DISPLAY = "+51 926 644 490";
 
 export function buildWhatsAppLink(message) {
@@ -17,7 +18,10 @@ export function variantText(variant) {
 export function buildOrderMessage(items, { name, district } = {}) {
   const lines = items.map((i) => {
     const variant = variantText(i.variant);
-    return `• ${i.qty} × ${i.title}${i.model ? ` (${i.model})` : ""}${variant ? ` [${variant}]` : ""} — ${formatPrice(i.price * i.qty)}`;
+    const line = `• ${i.qty} × ${i.title}${i.model ? ` (${i.model})` : ""}${variant ? ` [${variant}]` : ""} — ${formatPrice(i.price * i.qty)}`;
+    // Link a la ficha: WhatsApp no adjunta imágenes desde wa.me, pero el
+    // link muestra la foto (vista previa del primer link) y evita confusiones.
+    return i.url ? `${line}\n   ${SITE_URL}${i.url}` : line;
   });
   const total = items.reduce((s, i) => s + i.price * i.qty, 0);
   const extra = [name && `Nombre: ${name}`, district && `Distrito: ${district}`].filter(Boolean);
@@ -32,5 +36,5 @@ export function buildOrderMessage(items, { name, district } = {}) {
 
 export function buildProductMessage(product, qty = 1, variant) {
   const v = variantText(variant);
-  return `Hola, me interesa: ${qty > 1 ? `${qty} × ` : ""}${product.title}${product.model ? ` (${product.model})` : ""}${v ? ` [${v}]` : ""} — ${formatPrice(product.price)}`;
+  return `Hola, me interesa: ${qty > 1 ? `${qty} × ` : ""}${product.title}${product.model ? ` (${product.model})` : ""}${v ? ` [${v}]` : ""} — ${formatPrice(product.price)}\n${SITE_URL}${productUrl(product)}`;
 }

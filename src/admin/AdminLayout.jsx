@@ -9,10 +9,11 @@ export default function AdminLayout({ children }) {
     {
       label: "Productos",
       to: "/admin",
-      active: !pathname.startsWith("/admin/servicios") && !pathname.startsWith("/admin/precios"),
+      active: !["/admin/servicios", "/admin/precios", "/admin/catalogo"].some((p) => pathname.startsWith(p)),
     },
     { label: "Servicios", to: "/admin/servicios", active: pathname.startsWith("/admin/servicios") },
     { label: "Precios internos", to: "/admin/precios", active: pathname.startsWith("/admin/precios") },
+    { label: "Catálogo PDF", to: "/admin/catalogo", active: pathname.startsWith("/admin/catalogo") },
   ];
 
   return (

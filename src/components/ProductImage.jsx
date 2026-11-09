@@ -1,12 +1,19 @@
 import { Package } from "lucide-react";
+import { isCutout } from "../lib/images";
 
-// Marco de foto estándar del catálogo: fondo gris claro uniforme, producto
-// centrado y contenido (nunca recortado). `mix-blend-multiply` funde los
-// fondos blancos de fotos de proveedores con el gris, así las imágenes
-// que aún no están estandarizadas se ven consistentes con las que sí.
+// Marco de foto estándar del catálogo.
+// - Portada recortada (fondo transparente, ver specs/010): fondo "vitrina"
+//   oscuro con foco de luz, igual que el resto del sitio.
+// - Foto sin recortar: fondo gris claro uniforme; `mix-blend-multiply` funde
+//   los fondos blancos de proveedores con el gris. Es el modo de transición
+//   hasta que cada producto tenga su portada recortada.
 export default function ProductImage({ src, alt, className = "", imgClassName = "", padding = "p-[10%]", eager = false }) {
+  const cutout = isCutout(src);
+  const frame = cutout ? "vitrina" : "relative bg-photo";
+  const blend = cutout ? "drop-shadow-[0_10px_14px_rgba(0,0,0,0.35)]" : "mix-blend-multiply";
+
   return (
-    <div className={`relative overflow-hidden bg-photo ${className}`}>
+    <div className={`overflow-hidden ${frame} ${className}`}>
       {src ? (
         <img
           src={src}
@@ -14,7 +21,7 @@ export default function ProductImage({ src, alt, className = "", imgClassName = 
           loading={eager ? "eager" : "lazy"}
           fetchpriority={eager ? "high" : undefined}
           decoding="async"
-          className={`absolute inset-0 w-full h-full object-contain mix-blend-multiply transition-transform duration-500 ${padding} ${imgClassName}`}
+          className={`absolute inset-0 w-full h-full object-contain ${blend} transition-transform duration-500 ${padding} ${imgClassName}`}
         />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center text-slate-400">

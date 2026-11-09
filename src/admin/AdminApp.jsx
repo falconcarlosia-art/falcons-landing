@@ -9,6 +9,7 @@ import ServiceList from "./ServiceList";
 import ServiceForm from "./ServiceForm";
 import InternalPriceList from "./InternalPriceList";
 import InternalPriceForm from "./InternalPriceForm";
+import CatalogExport from "./CatalogExport";
 
 export default function AdminApp() {
   const [session, setSession] = useState(undefined);
@@ -45,6 +46,7 @@ export default function AdminApp() {
         <Route path="precios" element={<InternalPriceList />} />
         <Route path="precios/nuevo" element={<InternalPriceForm />} />
         <Route path="precios/:id" element={<InternalPriceForm />} />
+        <Route path="catalogo" element={<CatalogExport />} />
       </Routes>
     </AdminLayout>
   );

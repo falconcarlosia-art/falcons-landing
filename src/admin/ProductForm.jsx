@@ -4,6 +4,8 @@ import { supabase } from "../lib/supabaseClient";
 import RichTextEditor from "./RichTextEditor";
 import SpecsEditor from "./SpecsEditor";
 import VariantsEditor from "./VariantsEditor";
+import CutoutDialog from "./CutoutDialog";
+import { isCutout } from "../lib/images";
 import { APPS, CATEGORIES, ECOSYSTEMS, PRODUCT_SELECT, PROTOCOLS, ROOMS, normalizeProduct } from "../lib/catalog";
 import { KNOWN_BRANDS, productBrand, productSku } from "../lib/seo";
 const ICONS = [
@@ -54,6 +56,8 @@ export default function ProductForm() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
+  // URL de la imagen que se está recortando (abre el diálogo).
+  const [cutoutSrc, setCutoutSrc] = useState(null);
 
   useEffect(() => {
     if (isNew) return;
@@ -107,6 +111,8 @@ export default function ProductForm() {
         uploadedUrls.push(data.publicUrl);
       }
       setProduct((p) => ({ ...p, images: [...p.images, ...uploadedUrls] }));
+      // Sin portada recortada todavía: ofrece recortar la primera foto subida.
+      if (uploadedUrls.length && !isCutout(product.images[0])) setCutoutSrc(uploadedUrls[0]);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -390,10 +396,34 @@ export default function ProductForm() {
 
       <div>
         <label className="block text-xs font-medium text-slate-400 mb-2">Imágenes</label>
+        {product.images.length > 0 && !isCutout(product.images[0]) && (
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3">
+            <p className="text-xs text-amber-200">
+              La portada no está recortada: en la tienda se verá sobre un recuadro claro.
+            </p>
+            <button
+              type="button"
+              onClick={() => setCutoutSrc(product.images[0])}
+              className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold"
+            >
+              Recortar portada
+            </button>
+          </div>
+        )}
         <div className="flex flex-wrap gap-3 mb-3">
           {product.images.map((url, i) => (
-            <div key={url} className="relative w-20 h-20 rounded-lg overflow-hidden border border-slate-700 group">
-              <img src={url} alt={`imagen ${i + 1}`} className="w-full h-full object-cover" />
+            <div key={url} className="w-20 space-y-1">
+            <div className={`relative w-20 h-20 rounded-lg overflow-hidden border group ${isCutout(url) ? "vitrina border-amber-500/40" : "border-slate-700"}`}>
+              <img
+                src={url}
+                alt={`imagen ${i + 1}`}
+                className={`relative w-full h-full ${isCutout(url) ? "object-contain p-1.5" : "object-cover"}`}
+              />
+              {i === 0 && (
+                <span className="absolute top-1 left-1 rounded bg-slate-950/80 px-1 text-[9px] font-semibold text-amber-300">
+                  Portada
+                </span>
+              )}
               <div className="absolute inset-0 bg-slate-950/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
                 <button type="button" onClick={() => moveImage(i, -1)} className="text-white text-xs px-1">
                   ◀
@@ -406,8 +436,30 @@ export default function ProductForm() {
                 </button>
               </div>
             </div>
+            {isCutout(url) ? (
+              <p className="text-[10px] text-center text-amber-400/80">Recortada</p>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setCutoutSrc(url)}
+                className="w-full text-[10px] text-slate-400 hover:text-amber-300"
+              >
+                Quitar fondo
+              </button>
+            )}
+            </div>
           ))}
         </div>
+        {cutoutSrc && (
+          <CutoutDialog
+            src={cutoutSrc}
+            onClose={() => setCutoutSrc(null)}
+            onAccept={(url) => {
+              setProduct((p) => ({ ...p, images: [url, ...p.images] }));
+              setCutoutSrc(null);
+            }}
+          />
+        )}
         <input
           type="file"
           accept="image/*"

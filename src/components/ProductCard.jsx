@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { Check, Plus, ChevronRight } from "lucide-react";
-import { formatPrice, labelOf, productUrl, PROTOCOLS } from "../lib/catalog";
+import { formatPrice, isConnected, labelOf, productUrl, PROTOCOLS } from "../lib/catalog";
 import { useOrder } from "../lib/order";
 import ProductImage from "./ProductImage";
 
@@ -51,7 +51,7 @@ export default function ProductCard({ product }) {
   const url = productUrl(product);
 
   return (
-    <article className="group relative flex flex-col rounded-card bg-surface border border-line hover:border-subtle/60 overflow-hidden transition-colors duration-200">
+    <article className="group relative flex flex-col rounded-card bg-surface border border-line hover:border-brand/40 hover:-translate-y-0.5 motion-reduce:hover:translate-y-0 overflow-hidden transition-[border-color,transform] duration-200">
       <Link to={url} className="relative block" tabIndex={-1} aria-hidden="true">
         <ProductImage
           src={product.images[0]}
@@ -77,9 +77,11 @@ export default function ProductCard({ product }) {
         </h3>
 
         <div className="hidden sm:flex flex-wrap gap-1.5 mt-0.5">
-          <span className="px-1.5 py-0.5 rounded text-[11px] font-mono text-muted bg-surface-2">
-            {labelOf(PROTOCOLS, product.protocol)}
-          </span>
+          {isConnected(product) && (
+            <span className="px-1.5 py-0.5 rounded text-[11px] font-mono text-muted bg-surface-2">
+              {labelOf(PROTOCOLS, product.protocol)}
+            </span>
+          )}
           {product.app && (
             <span className="px-1.5 py-0.5 rounded text-[11px] font-mono text-muted bg-surface-2">
               {product.app}

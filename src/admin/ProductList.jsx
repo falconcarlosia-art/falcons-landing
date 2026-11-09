@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
+import { isCutout } from "../lib/images";
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
@@ -57,10 +58,17 @@ export default function ProductList() {
             <img
               src={p.images?.[0]}
               alt={p.title}
-              className="w-16 h-16 rounded-lg object-cover bg-slate-800 flex-shrink-0"
+              className={`w-16 h-16 rounded-lg flex-shrink-0 ${isCutout(p.images?.[0]) ? "vitrina object-contain p-1.5" : "object-cover bg-slate-800"}`}
             />
             <div className="flex-1 min-w-0">
-              <p className="text-white font-semibold text-sm truncate">{p.title}</p>
+              <p className="text-white font-semibold text-sm truncate">
+                {p.title}
+                {!isCutout(p.images?.[0]) && (
+                  <span className="ml-2 align-middle rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium text-amber-300">
+                    Portada sin recortar
+                  </span>
+                )}
+              </p>
               <p className="text-slate-500 text-xs">
                 {p.category} · S/. {p.price}
                 {!p.active && " · Oculto"}

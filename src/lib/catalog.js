@@ -33,7 +33,12 @@ export const PROTOCOLS = [
   { value: "matter", label: "Matter" },
   { value: "bluetooth", label: "Bluetooth" },
   { value: "rf", label: "RF 433 MHz" },
+  // Accesorios eléctricos (condensadores, cajas, cables): sin chip de
+  // conexión ni bloque "¿Es para mi casa?", y fuera del filtro "Conexión".
+  { value: "none", label: "Sin conexión (accesorio)" },
 ];
+
+export const isConnected = (p) => p.protocol !== "none";
 
 export const ECOSYSTEMS = [
   { value: "alexa", label: "Amazon Alexa" },

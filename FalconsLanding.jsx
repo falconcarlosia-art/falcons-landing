@@ -163,9 +163,9 @@ function Hero({ products, nav }) {
                     imgClassName="group-hover:scale-105"
                     eager={i < 2}
                   />
-                  <div className="absolute inset-x-2 bottom-2 sm:inset-x-3 sm:bottom-3 flex items-center justify-between gap-2 rounded-xl bg-white/90 backdrop-blur px-3 py-2">
-                    <span className="text-xs sm:text-sm font-medium text-slate-900 truncate">{p.title}</span>
-                    <span className="text-xs sm:text-sm font-semibold text-slate-900 tabular shrink-0">
+                  <div className="absolute inset-x-2 bottom-2 sm:inset-x-3 sm:bottom-3 flex items-center justify-between gap-2 rounded-xl bg-bg/75 border border-line/70 backdrop-blur px-3 py-2">
+                    <span className="text-xs sm:text-sm font-medium text-ink truncate">{p.title}</span>
+                    <span className="text-xs sm:text-sm font-semibold text-ink tabular shrink-0">
                       {formatPrice(p.price)}
                     </span>
                   </div>

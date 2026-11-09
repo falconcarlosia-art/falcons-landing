@@ -24,6 +24,7 @@ import {
   ECOSYSTEMS,
   PRODUCT_SELECT,
   PROTOCOLS,
+  isConnected,
   categoryUrl,
   formatPrice,
   labelOf,
@@ -390,9 +391,11 @@ export default function ProductPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-1.5 mt-4">
-                  <span className="px-2 py-1 rounded-md text-xs font-mono text-ink bg-surface-2">
-                    {labelOf(PROTOCOLS, product.protocol)}
-                  </span>
+                  {isConnected(product) && (
+                    <span className="px-2 py-1 rounded-md text-xs font-mono text-ink bg-surface-2">
+                      {labelOf(PROTOCOLS, product.protocol)}
+                    </span>
+                  )}
                   {ecosystems.map((e) => (
                     <span key={e} className="px-2 py-1 rounded-md text-xs font-mono text-ink bg-surface-2">{e}</span>
                   ))}
@@ -404,7 +407,7 @@ export default function ProductPage() {
 
               <p className="text-muted leading-relaxed">{product.desc}</p>
 
-              <CompatibilityCheck product={product} />
+              {isConnected(product) && <CompatibilityCheck product={product} />}
 
               {product.variants.map((v) => (
                 <div key={v.label}>

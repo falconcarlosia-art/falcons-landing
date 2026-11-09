@@ -4,6 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { Search, SlidersHorizontal, X, ChevronRight, MessageCircle } from "lucide-react";
 import SiteShell from "../components/SiteShell";
 import ProductCard, { ProductCardSkeleton } from "../components/ProductCard";
+import DownloadCatalogButton from "../components/DownloadCatalogButton";
 import { useProducts } from "../lib/useProducts";
 import {
   APPS,
@@ -25,7 +26,7 @@ const SITE_URL = "https://falcem.com";
 
 // Filtros ↔ URL: así un filtro se puede compartir o volver con "atrás".
 const MULTI = {
-  protocolo: { key: "protocols", options: PROTOCOLS, title: "Conexión" },
+  protocolo: { key: "protocols", options: PROTOCOLS.filter((p) => p.value !== "none"), title: "Conexión" },
   ecosistema: { key: "ecosystems", options: ECOSYSTEMS, title: "Funciona con" },
   app: { key: "apps", options: APPS.map((a) => ({ value: a, label: a })), title: "App" },
   ambiente: { key: "rooms", options: ROOMS, title: "Ambiente" },
@@ -287,7 +288,10 @@ export default function CatalogPage() {
           )}
         </nav>
 
-        <h1 className="text-2xl sm:text-3xl font-semibold text-ink tracking-tight">{heading}</h1>
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-ink tracking-tight">{heading}</h1>
+          <DownloadCatalogButton />
+        </div>
 
         {/* Toolbar — fija bajo el navbar en móvil */}
         <div className="sticky top-16 z-30 -mx-4 px-4 sm:mx-0 sm:px-0 py-3 bg-bg/95 backdrop-blur-lg lg:static lg:bg-transparent lg:backdrop-blur-0 mt-3 lg:mt-5">

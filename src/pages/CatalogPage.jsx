@@ -270,7 +270,7 @@ export default function CatalogPage() {
       : "Interruptores, sensores, paneles táctiles y accesorios inteligentes compatibles con Alexa y Google Home. Precios en soles y asesoría por WhatsApp.");
   const canonical = `${SITE_URL}${category ? categoryUrl(category) : "/productos"}`;
   const whatsappMessage = category
-    ? `Hola, busco ${category.toLowerCase()} inteligentes`
+    ? `Hola, busco productos de la categoría ${category}`
     : "Hola, quiero asesoría para elegir productos de domótica";
 
   // Listado sin filtros de query (lo que muestra el HTML prerenderizado):
@@ -306,8 +306,9 @@ export default function CatalogPage() {
           },
           mainEntity: {
             "@type": "ItemList",
-            numberOfItems: listed.length,
-            itemListElement: listed.map((p, i) => ({
+            // Solo la primera página: el HTML inicial muestra PAGE_SIZE productos
+            numberOfItems: Math.min(listed.length, PAGE_SIZE),
+            itemListElement: listed.slice(0, PAGE_SIZE).map((p, i) => ({
               "@type": "ListItem",
               position: i + 1,
               url: `${SITE_URL}${productUrl(p)}`,

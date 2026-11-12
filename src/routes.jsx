@@ -1,7 +1,7 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 // De "react-router" (no "-dom"): ver nota en entry-server.jsx sobre el
 // bug de detección de named exports de Vite bajo ssrLoadModule.
-import { Routes, Route } from "react-router";
+import { Routes, Route, useLocation } from "react-router";
 import FalconsLanding from "../FalconsLanding.jsx";
 import ProductPage from "./pages/ProductPage.jsx";
 import CatalogPage from "./pages/CatalogPage.jsx";
@@ -25,9 +25,20 @@ function PageFallback() {
   );
 }
 
+// Al cambiar de página se vuelve arriba (solo el pathname: cambiar filtros
+// del catálogo no mueve el scroll), salvo que la URL apunte a un ancla.
+function ScrollToTop() {
+  const { pathname, hash } = useLocation();
+  useEffect(() => {
+    if (!hash) window.scrollTo(0, 0);
+  }, [pathname, hash]);
+  return null;
+}
+
 export default function AppRoutes() {
   return (
     <OrderProvider>
+      <ScrollToTop />
       <Suspense fallback={<PageFallback />}>
         <Routes>
           <Route path="/" element={<FalconsLanding />} />

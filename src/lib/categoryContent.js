@@ -39,6 +39,8 @@ export const CATEGORY_CONTENT = {
     services: [S.interruptor, S.hub, S.app],
   },
   "Pared Táctil": {
+    // Nombre para títulos: "Pared Táctil inteligentes" no se lee bien.
+    seoName: "Interruptores táctiles de pared",
     intro:
       "Interruptores táctiles de vidrio de 1 a 3 botones y paneles de escenas que reemplazan tus interruptores de pared con un acabado moderno.",
     metaDescription:

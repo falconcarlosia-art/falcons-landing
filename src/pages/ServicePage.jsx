@@ -61,8 +61,15 @@ export default function ServicePage() {
       .select("id, category, title, description")
       .eq("id", id)
       .single()
-      .then(({ data }) => {
-        if (!cancelled) setService(data ?? null);
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        // Solo "no existe" (PGRST116) muestra "no disponible"; un fallo de
+        // red conserva el servicio que ya vino en el HTML prerenderizado.
+        if (error && error.code !== "PGRST116") {
+          setService((s) => s ?? null);
+          return;
+        }
+        setService(data ?? null);
       });
 
     return () => {

@@ -260,13 +260,14 @@ export default function CatalogPage() {
 
   const heading = category ?? "Catálogo de domótica";
   const content = unknownCategory ? null : categoryContent(category);
+  const seoName = content?.seoName ?? `${category} inteligentes`;
   const pageTitle = unknownCategory
     ? formatTitle("Categoría no encontrada")
-    : formatTitle(category ? `${category} inteligentes en Lima` : "Catálogo de domótica en Lima");
+    : formatTitle(category ? `${seoName} en Lima` : "Catálogo de domótica en Lima");
   const pageDescription =
     content?.metaDescription ??
     (category
-      ? `${category} inteligentes compatibles con Alexa y Google Home. Precios en soles, asesoría por WhatsApp e instalación en Lima.`
+      ? `${seoName} compatibles con Alexa y Google Home. Precios en soles, asesoría por WhatsApp e instalación en Lima.`
       : "Interruptores, sensores, paneles táctiles y accesorios inteligentes compatibles con Alexa y Google Home. Precios en soles y asesoría por WhatsApp.");
   const canonical = `${SITE_URL}${category ? categoryUrl(category) : "/productos"}`;
   const whatsappMessage = category
@@ -285,7 +286,7 @@ export default function CatalogPage() {
     ...categories.map((x) => x.name).filter((c) => !CATEGORIES.includes(c)),
   ];
 
-  const collectionName = category ? `${category} inteligentes en Lima` : "Catálogo de domótica en Lima";
+  const collectionName = category ? `${seoName} en Lima` : "Catálogo de domótica en Lima";
   const jsonLd =
     unknownCategory || listed.length === 0
       ? null

@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { MessageCircle, MapPin } from "lucide-react";
+import { MessageCircle, MapPin, Mail } from "lucide-react";
 import { useCatalogNav } from "../lib/useProducts";
 import { categoryUrl } from "../lib/catalog";
 import { buildWhatsAppLink } from "../lib/whatsapp";
@@ -68,6 +68,14 @@ export default function Footer({ className = "" }) {
                   <span className="tabular">{BUSINESS.whatsappDisplay}</span>
                 </a>
               </li>
+              {BUSINESS.email && (
+                <li>
+                  <a href={`mailto:${BUSINESS.email}`} className="flex items-center gap-2 text-sm text-muted hover:text-ink">
+                    <Mail size={16} className="text-brand/80" />
+                    {BUSINESS.email}
+                  </a>
+                </li>
+              )}
               <li className="flex items-start gap-2 text-sm text-muted">
                 <MapPin size={16} className="text-brand/80 mt-0.5 shrink-0" />
                 {BUSINESS.address.district}, {BUSINESS.address.city} — {BUSINESS.address.country}

@@ -30,7 +30,7 @@ export const BUSINESS = {
   // PENDIENTES (null = no mostrar):
   legalName: "FALCON ELECTRONIC DEL PERU E.I.R.L.",
   ruc: "20607895237",
-  email: null,
+  email: "contacto@falcem.com",
   hours: null, // horario de atención
   foundedYear: null,
 };

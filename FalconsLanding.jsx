@@ -456,6 +456,7 @@ const ORGANIZATION_JSON_LD = {
   name: "Falcons",
   legalName: BUSINESS.legalName,
   taxID: BUSINESS.ruc,
+  email: BUSINESS.email,
   url: "https://falcem.com/",
   logo: "https://falcem.com/logo-falcons.png",
   image: "https://falcem.com/logo-falcons.png",

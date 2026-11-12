@@ -6,9 +6,9 @@ import { formatPrice } from "../lib/catalog";
 import { buildOrderMessage, buildWhatsAppLink, variantText } from "../lib/whatsapp";
 import ProductImage from "./ProductImage";
 
-// Botón flotante con contador. `raised` lo sube en móvil cuando la página
-// tiene su propia barra inferior (ficha de producto).
-export function OrderFab({ raised = false }) {
+// Botón con contador. Lo posiciona SiteShell (apilado sobre el de WhatsApp,
+// por encima de la barra inferior de la ficha de producto en móvil).
+export function OrderFab() {
   const { count, setOpen } = useOrder();
   if (count === 0) return null;
 
@@ -17,9 +17,7 @@ export function OrderFab({ raised = false }) {
       type="button"
       onClick={() => setOpen(true)}
       aria-label={`Ver mi pedido (${count} productos)`}
-      className={`fixed right-4 z-40 flex items-center gap-2 h-14 pl-4 pr-5 rounded-full bg-brand text-brand-ink font-semibold shadow-xl shadow-black/40 hover:bg-brand-hover active:scale-95 transition-all animate-fade-in ${
-        raised ? "bottom-24 lg:bottom-6" : "bottom-6"
-      }`}
+      className="flex items-center gap-2 h-14 pl-4 pr-5 rounded-full bg-brand text-brand-ink font-semibold shadow-xl shadow-black/40 hover:bg-brand-hover active:scale-95 transition-all animate-fade-in"
     >
       <span className="relative">
         <ShoppingBag size={22} />

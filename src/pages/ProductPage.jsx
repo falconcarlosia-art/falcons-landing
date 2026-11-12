@@ -31,7 +31,9 @@ import {
   normalizeProduct,
   toListItem,
 } from "../lib/catalog";
-import { productBrand, productSku } from "../lib/seo";
+import { pageTitle, productBrand, productSku } from "../lib/seo";
+import { installServiceFor, serviceUrl } from "../lib/serviceLinks";
+import { BUSINESS } from "../lib/business";
 import { useCanonicalSlug } from "../lib/useCanonicalSlug";
 import SiteShell from "../components/SiteShell";
 import ProductGallery from "../components/ProductGallery";
@@ -281,13 +283,14 @@ export default function ProductPage() {
     );
   }
 
-  const pageTitle = `${product.title} — Falcons Domótica`;
+  const title = pageTitle(product.title);
   const pageDescription = product.desc;
   const slug = slugify(product.title);
   const canonicalUrl = `${SITE_URL}/producto/${product.id}/${slug}`;
   const image = product.images[0];
   const ecosystems = product.ecosystems.map((e) => labelOf(ECOSYSTEMS, e));
   const brand = productBrand(product);
+  const installService = installServiceFor(product);
 
   const jsonLd = [
     {
@@ -343,13 +346,13 @@ export default function ProductPage() {
   );
 
   return (
-    <SiteShell hasBottomBar>
+    <SiteShell hasBottomBar whatsappMessage={`Hola, quiero cotizar: ${product.title}`}>
       <Helmet>
-        <title>{pageTitle}</title>
+        <title>{title}</title>
         <meta name="description" content={pageDescription} />
         <link rel="canonical" href={canonicalUrl} />
         <meta property="og:type" content="product" />
-        <meta property="og:title" content={pageTitle} />
+        <meta property="og:title" content={title} />
         <meta property="og:description" content={pageDescription} />
         <meta property="og:url" content={canonicalUrl} />
         {image && <meta property="og:image" content={image} />}
@@ -466,12 +469,23 @@ export default function ProductPage() {
 
               <ul className="grid grid-cols-2 gap-3 text-xs text-muted">
                 <li className="flex items-center gap-2">
-                  <ShieldCheck size={16} className="text-brand/80 shrink-0" /> Garantía de 2 años
+                  <ShieldCheck size={16} className="text-brand/80 shrink-0" />
+                  <Link to="/garantia" className="hover:text-ink underline-offset-2 hover:underline">
+                    Garantía de {BUSINESS.warranty.years} años
+                  </Link>
                 </li>
-                <li className="flex items-center gap-2">
-                  <Wrench size={16} className="text-brand/80 shrink-0" />
-                  <a href="/#servicios" className="hover:text-ink underline-offset-2 hover:underline">Instalación disponible</a>
-                </li>
+                {installService && (
+                  <li className="flex items-center gap-2">
+                    <Wrench size={16} className="text-brand/80 shrink-0" />
+                    <Link
+                      to={serviceUrl(installService)}
+                      title={installService.title}
+                      className="hover:text-ink underline-offset-2 hover:underline"
+                    >
+                      Instalación disponible
+                    </Link>
+                  </li>
+                )}
               </ul>
             </div>
           </div>

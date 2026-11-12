@@ -2,12 +2,13 @@ import { Link } from "react-router";
 import { Helmet } from "react-helmet-async";
 import { ChevronRight } from "lucide-react";
 import SiteShell from "../components/SiteShell";
+import { pageTitle } from "../lib/seo";
 
 export default function NotFound() {
   return (
     <SiteShell>
       <Helmet>
-        <title>Página no encontrada — Falcons</title>
+        <title>{pageTitle("Página no encontrada")}</title>
         <meta name="robots" content="noindex" />
       </Helmet>
 

@@ -6,7 +6,6 @@ import { slugify } from "./src/lib/slugify";
 import { buildWhatsAppLink } from "./src/lib/whatsapp";
 import { AREA_SERVED } from "./src/lib/seo";
 import { usePrerenderData } from "./src/lib/PrerenderContext";
-import { trackEvent } from "./src/lib/analytics";
 import { useProducts } from "./src/lib/useProducts";
 import { buildNav, categoryUrl, formatPrice, productUrl, sortProducts } from "./src/lib/catalog";
 import SiteShell from "./src/components/SiteShell";
@@ -14,18 +13,17 @@ import ProductCard, { ProductCardSkeleton } from "./src/components/ProductCard";
 import ProductImage from "./src/components/ProductImage";
 import AboutUs from "./src/components/AboutUs";
 import Faq from "./src/components/Faq";
+import ContactForm from "./src/components/ContactForm";
 import { iconForCategory, ROOM_ICONS } from "./src/components/catalogIcons";
 import {
   ArrowRight,
   ChevronRight,
   MessageCircle,
   Search,
-  Send,
   ShieldCheck,
   Wrench,
   MapPin,
   Mic,
-  CheckCircle,
 } from "lucide-react";
 
 function SectionHeader({ eyebrow, title, action }) {
@@ -443,125 +441,6 @@ function ServicesShowroom() {
             </ul>
           </>
         )}
-      </div>
-    </section>
-  );
-}
-
-// ─── Contacto / visita técnica ──────────────────────────────────────────────
-
-const DISTRICTS = ["Santiago de Surco", "Miraflores", "San Isidro", "La Molina", "Otro distrito de Lima"];
-
-function ContactForm() {
-  const [form, setForm] = useState({
-    name: "",
-    phone: "",
-    district: "",
-    projectType: "",
-    message: "",
-  });
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  // La solicitud se entrega por WhatsApp (el canal que ya atiende el
-  // negocio) con los datos prellenados — así no depende de un servicio de
-  // formularios externo y el lead llega calificado (distrito + inmueble).
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const lines = [
-      "Hola, quiero agendar una visita técnica gratuita.",
-      `Nombre: ${form.name}`,
-      `Teléfono: ${form.phone}`,
-      `Distrito: ${form.district}`,
-      `Tipo de inmueble: ${form.projectType}`,
-      form.message && `Detalle: ${form.message}`,
-    ].filter(Boolean);
-    trackEvent("submit_visita", { district: form.district, project_type: form.projectType });
-    window.open(buildWhatsAppLink(lines.join("\n")), "_blank", "noopener,noreferrer");
-  };
-
-  const labelCls = "block text-xs font-medium text-muted mb-2";
-  const inputCls =
-    "w-full h-12 bg-bg border border-line hover:border-subtle focus:border-brand focus:outline-none rounded-xl px-4 text-ink placeholder:text-subtle text-base sm:text-sm transition-colors";
-
-  return (
-    <section id="contacto" className="py-16 lg:py-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-        <div className="space-y-6">
-          <p className="text-xs font-semibold tracking-wider uppercase text-brand">Visita técnica gratuita</p>
-          <h2 className="text-3xl sm:text-4xl font-semibold text-ink tracking-tight leading-tight">
-            ¿Quieres automatizar tu casa completa?
-          </h2>
-          <p className="text-muted leading-relaxed">
-            Cuéntanos sobre tu espacio y te enviamos una propuesta a medida. Te respondemos por WhatsApp en menos de 24
-            horas.
-          </p>
-          <ul className="space-y-3 pt-2">
-            {["Diagnóstico técnico gratuito", "Propuesta en 24h", "Sin compromiso de contratación"].map((text) => (
-              <li key={text} className="flex items-center gap-3 text-sm text-ink">
-                <CheckCircle size={17} className="text-wa-hover shrink-0" />
-                {text}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <form onSubmit={handleSubmit} className="rounded-card bg-surface border border-line p-5 sm:p-8 space-y-4">
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="c-name" className={labelCls}>Nombre</label>
-              <input id="c-name" type="text" name="name" value={form.name} onChange={handleChange} placeholder="Tu nombre" autoComplete="name" className={inputCls} required />
-            </div>
-            <div>
-              <label htmlFor="c-phone" className={labelCls}>Teléfono / WhatsApp</label>
-              <input id="c-phone" type="tel" name="phone" value={form.phone} onChange={handleChange} placeholder="999 999 999" autoComplete="tel" inputMode="tel" className={inputCls} required />
-            </div>
-          </div>
-
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="c-district" className={labelCls}>Distrito</label>
-              <select id="c-district" name="district" value={form.district} onChange={handleChange} className={`${inputCls} cursor-pointer`} required>
-                <option value="" disabled>Selecciona tu distrito…</option>
-                {DISTRICTS.map((d) => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label htmlFor="c-type" className={labelCls}>Tipo de inmueble</label>
-              <select id="c-type" name="projectType" value={form.projectType} onChange={handleChange} className={`${inputCls} cursor-pointer`} required>
-                <option value="" disabled>Selecciona…</option>
-                <option value="Casa">Casa</option>
-                <option value="Departamento">Departamento</option>
-                <option value="Oficina / Comercio">Oficina / Comercio</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="c-msg" className={labelCls}>¿Qué quieres automatizar? (opcional)</label>
-            <textarea
-              id="c-msg"
-              name="message"
-              value={form.message}
-              onChange={handleChange}
-              rows={3}
-              placeholder="Ej: departamento de 3 dormitorios, quiero automatizar luces y cortinas…"
-              className={`${inputCls} h-auto py-3 resize-none`}
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full h-12 flex items-center justify-center gap-2 rounded-xl bg-wa hover:bg-wa-hover text-white font-semibold transition-colors"
-          >
-            <Send size={17} />
-            Agendar visita técnica por WhatsApp
-          </button>
-        </form>
       </div>
     </section>
   );

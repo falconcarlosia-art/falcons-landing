@@ -6,6 +6,10 @@ import FalconsLanding from "../FalconsLanding.jsx";
 import ProductPage from "./pages/ProductPage.jsx";
 import CatalogPage from "./pages/CatalogPage.jsx";
 import ServicePage from "./pages/ServicePage.jsx";
+import NosotrosPage from "./pages/NosotrosPage.jsx";
+import ContactoPage from "./pages/ContactoPage.jsx";
+import GarantiaPage from "./pages/GarantiaPage.jsx";
+import PrivacidadPage from "./pages/PrivacidadPage.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import { OrderProvider } from "./lib/order.jsx";
 
@@ -31,6 +35,10 @@ export default function AppRoutes() {
           <Route path="/productos/:categorySlug" element={<CatalogPage />} />
           <Route path="/producto/:id/:slug" element={<ProductPage />} />
           <Route path="/servicios/:id/:slug" element={<ServicePage />} />
+          <Route path="/nosotros" element={<NosotrosPage />} />
+          <Route path="/contacto" element={<ContactoPage />} />
+          <Route path="/garantia" element={<GarantiaPage />} />
+          <Route path="/politica-de-privacidad" element={<PrivacidadPage />} />
           <Route path="/admin/*" element={<AdminApp />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

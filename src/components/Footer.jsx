@@ -2,7 +2,8 @@ import { Link } from "react-router";
 import { MessageCircle, MapPin } from "lucide-react";
 import { useCatalogNav } from "../lib/useProducts";
 import { categoryUrl } from "../lib/catalog";
-import { buildWhatsAppLink, WHATSAPP_DISPLAY } from "../lib/whatsapp";
+import { buildWhatsAppLink } from "../lib/whatsapp";
+import { BUSINESS } from "../lib/business";
 
 export default function Footer({ className = "" }) {
   const nav = useCatalogNav();
@@ -45,10 +46,11 @@ export default function Footer({ className = "" }) {
           <div>
             <p className={colTitle}>Falcons</p>
             <ul className="space-y-2.5">
+              <li><Link to="/nosotros" className={link}>Nosotros</Link></li>
+              <li><Link to="/contacto" className={link}>Contacto</Link></li>
+              <li><Link to="/garantia" className={link}>Garantía</Link></li>
               <li><a href="/#servicios" className={link}>Servicios</a></li>
-              <li><a href="/#nosotros" className={link}>Nosotros</a></li>
               <li><a href="/#faq" className={link}>Preguntas frecuentes</a></li>
-              <li><a href="/#contacto" className={link}>Contacto</a></li>
             </ul>
           </div>
 
@@ -63,20 +65,23 @@ export default function Footer({ className = "" }) {
                   className="flex items-center gap-2 text-sm text-muted hover:text-ink"
                 >
                   <MessageCircle size={16} className="text-wa-hover" />
-                  <span className="tabular">{WHATSAPP_DISPLAY}</span>
+                  <span className="tabular">{BUSINESS.whatsappDisplay}</span>
                 </a>
               </li>
               <li className="flex items-start gap-2 text-sm text-muted">
                 <MapPin size={16} className="text-brand/80 mt-0.5 shrink-0" />
-                Santiago de Surco, Lima — Perú
+                {BUSINESS.address.district}, {BUSINESS.address.city} — {BUSINESS.address.country}
               </li>
             </ul>
           </div>
         </div>
 
-        <p className="mt-12 pt-6 border-t border-line text-xs text-subtle">
-          © {new Date().getFullYear()} Falcons Domótica. Todos los derechos reservados.
-        </p>
+        <div className="mt-12 pt-6 border-t border-line flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-subtle">
+          <p>© {new Date().getFullYear()} {BUSINESS.name}. Todos los derechos reservados.</p>
+          <Link to="/politica-de-privacidad" className="hover:text-ink transition-colors">
+            Política de privacidad
+          </Link>
+        </div>
       </div>
     </footer>
   );

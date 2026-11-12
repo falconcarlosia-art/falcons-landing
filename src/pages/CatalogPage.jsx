@@ -8,6 +8,7 @@ import DownloadCatalogButton from "../components/DownloadCatalogButton";
 import { useProducts } from "../lib/useProducts";
 import {
   APPS,
+  CATEGORIES,
   ECOSYSTEMS,
   PRICE_RANGES,
   PROTOCOLS,
@@ -18,11 +19,19 @@ import {
   filterProducts,
   labelOf,
   matchesSearch,
+  productUrl,
+  sortProducts,
 } from "../lib/catalog";
 import { buildWhatsAppLink } from "../lib/whatsapp";
+import { pageTitle as formatTitle } from "../lib/seo";
+import { serviceUrl } from "../lib/serviceLinks";
+import { categoryContent } from "../lib/categoryContent";
 
 const PAGE_SIZE = 24;
 const SITE_URL = "https://falcem.com";
+const FALLBACK_IMAGE = `${SITE_URL}/logo-falcons.png`;
+const absoluteUrl = (src) =>
+  /^https?:\/\//i.test(src) ? src : `${SITE_URL}${src.startsWith("/") ? "" : "/"}${src}`;
 
 // Filtros ↔ URL: así un filtro se puede compartir o volver con "atrás".
 const MULTI = {
@@ -250,18 +259,67 @@ export default function CatalogPage() {
   };
 
   const heading = category ?? "Catálogo de domótica";
-  const pageTitle = category
-    ? `${category} inteligentes — Domótica Falcons Perú`
-    : "Catálogo de productos de domótica — Falcons Perú";
-  const pageDescription = category
-    ? `${category} inteligentes compatibles con Alexa y Google Home. Precios en soles, asesoría por WhatsApp e instalación en Lima.`
-    : "Interruptores, sensores, paneles táctiles y accesorios inteligentes compatibles con Alexa y Google Home. Precios en soles y asesoría por WhatsApp.";
+  const content = unknownCategory ? null : categoryContent(category);
+  const pageTitle = unknownCategory
+    ? formatTitle("Categoría no encontrada")
+    : formatTitle(category ? `${category} inteligentes en Lima` : "Catálogo de domótica en Lima");
+  const pageDescription =
+    content?.metaDescription ??
+    (category
+      ? `${category} inteligentes compatibles con Alexa y Google Home. Precios en soles, asesoría por WhatsApp e instalación en Lima.`
+      : "Interruptores, sensores, paneles táctiles y accesorios inteligentes compatibles con Alexa y Google Home. Precios en soles y asesoría por WhatsApp.");
   const canonical = `${SITE_URL}${category ? categoryUrl(category) : "/productos"}`;
+  const whatsappMessage = category
+    ? `Hola, busco ${category.toLowerCase()} inteligentes`
+    : "Hola, quiero asesoría para elegir productos de domótica";
+
+  // Listado sin filtros de query (lo que muestra el HTML prerenderizado):
+  // el ItemList y la og:image salen de aquí para tener paridad con lo visible.
+  const listed = sortProducts(inCategory);
+  const firstImage = listed.find((p) => p.images?.[0])?.images[0];
+  const ogImage = firstImage && !unknownCategory ? absoluteUrl(firstImage) : FALLBACK_IMAGE;
+
+  // Categorías con productos, en el orden de la taxonomía (texto de /productos)
+  const categoryLinks = [
+    ...CATEGORIES.filter((c) => categories.some((x) => x.name === c)),
+    ...categories.map((x) => x.name).filter((c) => !CATEGORIES.includes(c)),
+  ];
+
+  const collectionName = category ? `${category} inteligentes en Lima` : "Catálogo de domótica en Lima";
+  const jsonLd =
+    unknownCategory || listed.length === 0
+      ? null
+      : {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: collectionName,
+          description: pageDescription,
+          url: canonical,
+          isPartOf: { "@type": "WebSite", url: `${SITE_URL}/` },
+          breadcrumb: {
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Inicio", item: `${SITE_URL}/` },
+              { "@type": "ListItem", position: 2, name: "Productos", item: `${SITE_URL}/productos` },
+              ...(category ? [{ "@type": "ListItem", position: 3, name: category, item: canonical }] : []),
+            ],
+          },
+          mainEntity: {
+            "@type": "ItemList",
+            numberOfItems: listed.length,
+            itemListElement: listed.map((p, i) => ({
+              "@type": "ListItem",
+              position: i + 1,
+              url: `${SITE_URL}${productUrl(p)}`,
+              name: p.title,
+            })),
+          },
+        };
 
   const panelProps = { base, filters, toggleMulti, setParam, category, categories };
 
   return (
-    <SiteShell>
+    <SiteShell whatsappMessage={whatsappMessage}>
       <Helmet>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
@@ -271,6 +329,12 @@ export default function CatalogPage() {
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
         <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={ogImage} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
+        <meta name="twitter:image" content={ogImage} />
+        {jsonLd && <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>}
       </Helmet>
 
       <div className="pt-20 lg:pt-24 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -292,6 +356,7 @@ export default function CatalogPage() {
           <h1 className="text-2xl sm:text-3xl font-semibold text-ink tracking-tight">{heading}</h1>
           <DownloadCatalogButton />
         </div>
+        {content?.intro && <p className="mt-2 max-w-2xl text-sm sm:text-base text-muted">{content.intro}</p>}
 
         {/* Toolbar — fija bajo el navbar en móvil */}
         <div className="sticky top-16 z-30 -mx-4 px-4 sm:mx-0 sm:px-0 py-3 bg-bg/95 backdrop-blur-lg lg:static lg:bg-transparent lg:backdrop-blur-0 mt-3 lg:mt-5">
@@ -437,6 +502,69 @@ export default function CatalogPage() {
             )}
           </section>
         </div>
+
+        {/* Contenido SEO debajo de la grilla: no empuja los productos en móvil */}
+        {content && (
+          <div className="mt-16 lg:ml-[300px] grid gap-8 md:grid-cols-[minmax(0,1fr)_280px] md:gap-10">
+            {category && Array.isArray(content.guide) ? (
+              <section aria-labelledby="guia-categoria">
+                <h2 id="guia-categoria" className="text-xl font-semibold text-ink tracking-tight">
+                  Guía: {category}
+                </h2>
+                <div className="mt-4 space-y-4 text-sm sm:text-base leading-relaxed text-muted max-w-3xl">
+                  {content.guide.map((paragraph, i) => (
+                    <p key={i}>{paragraph}</p>
+                  ))}
+                </div>
+              </section>
+            ) : !category && categoryLinks.length > 0 ? (
+              <section aria-labelledby="guia-catalogo">
+                <h2 id="guia-catalogo" className="text-xl font-semibold text-ink tracking-tight">
+                  Categorías de domótica
+                </h2>
+                <p className="mt-4 text-sm sm:text-base leading-relaxed text-muted max-w-3xl">{content.guide}</p>
+                <ul className="mt-4 flex flex-wrap gap-2">
+                  {categoryLinks.map((c) => (
+                    <li key={c}>
+                      <Link
+                        to={categoryUrl(c)}
+                        className="inline-flex items-center gap-1 h-9 px-3 rounded-full border border-line bg-surface text-sm text-ink hover:border-brand hover:text-brand"
+                      >
+                        {c} <ChevronRight size={14} />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : (
+              <div className="hidden md:block" />
+            )}
+
+            {content.services?.length > 0 && (
+              <section
+                aria-labelledby="servicios-relacionados"
+                className="self-start rounded-card border border-line bg-surface p-5"
+              >
+                <h2 id="servicios-relacionados" className="text-sm font-semibold text-ink">
+                  Servicios de instalación relacionados
+                </h2>
+                <ul className="mt-3 space-y-2">
+                  {content.services.map((s) => (
+                    <li key={s.id}>
+                      <Link
+                        to={serviceUrl(s)}
+                        className="flex items-start gap-1.5 text-sm text-brand hover:text-brand-hover"
+                      >
+                        <ChevronRight size={14} className="mt-[3px] shrink-0" />
+                        {s.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Filtros en móvil: panel inferior */}

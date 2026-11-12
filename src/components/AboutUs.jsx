@@ -1,4 +1,4 @@
-import { CheckCircle, Star, Shield } from "lucide-react";
+import { CheckCircle, Wrench, Shield } from "lucide-react";
 
 // Copy genérico construido solo con hechos ya publicados en el sitio
 // (badges de confianza del Hero, ubicación del JSON-LD). Revisar/
@@ -6,8 +6,10 @@ import { CheckCircle, Star, Shield } from "lucide-react";
 // antes de considerarlo contenido final.
 export default function AboutUs() {
   const highlights = [
-    { icon: <CheckCircle size={16} />, text: "+200 proyectos instalados" },
-    { icon: <Star size={16} />, text: "4.9/5 de satisfacción" },
+    // Sin cifras de proyectos ni calificaciones hasta tener fuente verificable
+    // (specs/011). Solo hechos que el negocio ya respalda.
+    { icon: <CheckCircle size={16} />, text: "Diagnóstico técnico gratuito" },
+    { icon: <Wrench size={16} />, text: "Técnicos propios en Lima" },
     { icon: <Shield size={16} />, text: "Garantía de 2 años" },
   ];
 

@@ -5,6 +5,7 @@ import { supabase } from "./src/lib/supabaseClient";
 import { slugify } from "./src/lib/slugify";
 import { buildWhatsAppLink } from "./src/lib/whatsapp";
 import { AREA_SERVED } from "./src/lib/seo";
+import { BUSINESS } from "./src/lib/business";
 import { usePrerenderData } from "./src/lib/PrerenderContext";
 import { useProducts } from "./src/lib/useProducts";
 import { buildNav, categoryUrl, formatPrice, productUrl, sortProducts } from "./src/lib/catalog";
@@ -453,6 +454,8 @@ const ORGANIZATION_JSON_LD = {
   "@type": "HomeAndConstructionBusiness",
   "@id": "https://falcem.com/#organization",
   name: "Falcons",
+  legalName: BUSINESS.legalName,
+  taxID: BUSINESS.ruc,
   url: "https://falcem.com/",
   logo: "https://falcem.com/logo-falcons.png",
   image: "https://falcem.com/logo-falcons.png",

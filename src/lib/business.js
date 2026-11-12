@@ -28,8 +28,8 @@ export const BUSINESS = {
     howToClaim: "Escríbenos por WhatsApp con tu número de pedido o fecha de instalación y una foto o video de la falla.",
   },
   // PENDIENTES (null = no mostrar):
-  legalName: null, // razón social
-  ruc: null,
+  legalName: "FALCON ELECTRONIC DEL PERU E.I.R.L.",
+  ruc: "20607895237",
   email: null,
   hours: null, // horario de atención
   foundedYear: null,

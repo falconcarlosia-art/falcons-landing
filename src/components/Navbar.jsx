@@ -7,12 +7,17 @@ import { categoryUrl } from "../lib/catalog";
 import { buildWhatsAppLink } from "../lib/whatsapp";
 import { iconForCategory, ROOM_ICONS } from "./catalogIcons";
 
+// `to`: página interna (Link del router). `href`: ancla de la home.
 const LINKS = [
   { label: "Servicios", href: "/#servicios" },
-  { label: "Nosotros", href: "/#nosotros" },
+  { label: "Nosotros", to: "/nosotros" },
   { label: "Preguntas", href: "/#faq" },
-  { label: "Contacto", href: "/#contacto" },
+  { label: "Contacto", to: "/contacto" },
 ];
+
+function NavLink({ to, href, ...props }) {
+  return to ? <Link to={to} {...props} /> : <a href={href} {...props} />;
+}
 
 function Logo() {
   return (
@@ -177,15 +182,16 @@ export default function Navbar() {
               Productos
               <ChevronDown size={15} className={`transition-transform ${megaOpen ? "rotate-180" : ""}`} />
             </button>
-            {LINKS.map(({ label, href }) => (
-              <a
+            {LINKS.map(({ label, to, href }) => (
+              <NavLink
                 key={label}
+                to={to}
                 href={href}
                 onMouseEnter={() => hoverOpen(false)}
                 className="text-sm font-medium text-muted hover:text-ink transition-colors"
               >
                 {label}
-              </a>
+              </NavLink>
             ))}
           </nav>
 
@@ -282,15 +288,16 @@ export default function Navbar() {
                 })}
               </ul>
             )}
-            {LINKS.map(({ label, href }) => (
-              <a
+            {LINKS.map(({ label, to, href }) => (
+              <NavLink
                 key={label}
+                to={to}
                 href={href}
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center h-14 text-base font-medium text-ink border-b border-line"
               >
                 {label}
-              </a>
+              </NavLink>
             ))}
             <a
               href={buildWhatsAppLink("Hola, quiero asesoría sobre domótica")}

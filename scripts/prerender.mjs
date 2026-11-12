@@ -11,6 +11,8 @@ import path from "node:path";
 
 const DIST = path.resolve("dist");
 const SITE_URL = "https://falcem.com";
+// Se sirven en /<ruta> desde dist/<ruta>/index.html (firebase.json: trailingSlash false)
+const INSTITUTIONAL_ROUTES = ["/nosotros", "/contacto", "/garantia", "/politica-de-privacidad"];
 
 async function main() {
   const vite = await createServer({
@@ -23,7 +25,7 @@ async function main() {
   const catalog = await vite.ssrLoadModule("/src/lib/catalog.js");
   const { render } = await vite.ssrLoadModule("/src/entry-server.jsx");
 
-  const [{ data: productRows, error: productsError }, { data: services, error: servicesError }] =
+  const [{ data: productRows, error: productsError }, { data: serviceRows, error: servicesError }] =
     await Promise.all([
       supabase
         .from("products")
@@ -32,7 +34,8 @@ async function main() {
         .order("id"),
       supabase
         .from("services")
-        .select("id, category, title, description")
+        // "*" para leer created_at/updated_at (lastmod del sitemap) si existen
+        .select("*")
         .eq("active", true)
         .order("category")
         .order("id"),
@@ -42,6 +45,8 @@ async function main() {
   if (servicesError) throw new Error(`No se pudo leer "services" de Supabase: ${servicesError.message}`);
 
   const products = productRows.map(catalog.normalizeProduct);
+  // Seed de servicios: solo lo que usan las páginas (las fechas van al sitemap)
+  const services = serviceRows.map(({ id, category, title, description }) => ({ id, category, title, description }));
   // Listados (home, catálogo, relacionados): sin HTML largo ni ficha técnica
   const listProducts = products.map(catalog.toListItem);
   // Índice del mega menú/footer — viaja en el JSON de TODAS las páginas
@@ -126,47 +131,83 @@ async function main() {
   for (const service of services) {
     const slug = slugify(service.title);
     const url = `/servicios/${service.id}/${slug}`;
-    await writePage(`servicios/${service.id}/${slug}/index.html`, injectPage(render(url, { service, nav })));
+    await writePage(
+      `servicios/${service.id}/${slug}/index.html`,
+      injectPage(render(url, { service, products: listProducts, nav }))
+    );
+  }
+
+  // Páginas institucionales (rutas fijas, sin datos propios)
+  for (const route of INSTITUTIONAL_ROUTES) {
+    await writePage(`${route.slice(1)}/index.html`, injectPage(render(route, { nav })));
   }
 
   // 404 real — cualquier URL que no matchee ninguna ruta conocida
   await writePage("404.html", injectPage(render("/__prerender_not_found__", { nav })));
 
   // Sitemap dinámico — misma fuente que las páginas de arriba, sin anclas #
-  await fs.writeFile(path.join(DIST, "sitemap.xml"), buildSitemapXml({ products, services, categories, slugify }), "utf-8");
+  await fs.writeFile(path.join(DIST, "sitemap.xml"), buildSitemapXml({ products, services: serviceRows, categories, slugify }), "utf-8");
 
   await vite.close();
 
   console.log(
-    `[prerender] OK — home, catálogo + ${categories.length} categoría(s), ${products.length} producto(s), ${services.length} servicio(s), 404, admin, sitemap.xml`
+    `[prerender] OK — home, catálogo + ${categories.length} categoría(s), ${products.length} producto(s), ${services.length} servicio(s), ${INSTITUTIONAL_ROUTES.length} institucional(es), 404, admin, sitemap.xml`
   );
 }
 
+// lastmod (YYYY-MM-DD) desde updated_at ?? created_at de la fila. Sin
+// columna o con fecha inválida se omite: nunca la fecha del build, que le
+// diría a Google que todo cambió en cada deploy.
+function rowDate(row) {
+  const raw = row?.updated_at ?? row?.created_at;
+  if (!raw) return undefined;
+  const d = new Date(raw);
+  return Number.isNaN(d.getTime()) ? undefined : d.toISOString().slice(0, 10);
+}
+
+function maxDate(dates) {
+  return dates.filter(Boolean).sort().at(-1);
+}
+
 function buildSitemapXml({ products, services, categories, slugify }) {
+  const productDates = products.map(rowDate);
   const urls = [
-    { loc: `${SITE_URL}/`, changefreq: "weekly", priority: "1.0" },
-    { loc: `${SITE_URL}/productos`, changefreq: "weekly", priority: "0.9" },
+    {
+      loc: `${SITE_URL}/`,
+      lastmod: maxDate([...productDates, ...services.map(rowDate)]),
+      changefreq: "weekly",
+      priority: "1.0",
+    },
+    { loc: `${SITE_URL}/productos`, lastmod: maxDate(productDates), changefreq: "weekly", priority: "0.9" },
     ...categories.map((c) => ({
       loc: `${SITE_URL}/productos/${c.slug}`,
+      lastmod: maxDate(products.filter((p) => p.category === c.name).map(rowDate)),
       changefreq: "weekly",
       priority: "0.8",
     })),
     ...products.map((p) => ({
       loc: `${SITE_URL}/producto/${p.id}/${slugify(p.title)}`,
+      lastmod: rowDate(p),
       changefreq: "weekly",
       priority: "0.8",
     })),
     ...services.map((s) => ({
       loc: `${SITE_URL}/servicios/${s.id}/${slugify(s.title)}`,
+      lastmod: rowDate(s),
       changefreq: "monthly",
       priority: "0.7",
+    })),
+    ...INSTITUTIONAL_ROUTES.map((route) => ({
+      loc: `${SITE_URL}${route}`,
+      changefreq: "yearly",
+      priority: "0.5",
     })),
   ];
 
   const body = urls
     .map(
       (u) =>
-        `  <url><loc>${u.loc}</loc><changefreq>${u.changefreq}</changefreq><priority>${u.priority}</priority></url>`
+        `  <url><loc>${u.loc}</loc>${u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : ""}<changefreq>${u.changefreq}</changefreq><priority>${u.priority}</priority></url>`
     )
     .join("\n");
 
